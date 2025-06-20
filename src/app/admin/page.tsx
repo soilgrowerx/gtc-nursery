@@ -77,6 +77,7 @@ interface BusinessMetrics {
   inventoryTurnover: { tree: Tree; popularity: number; daysInStock: number; turnoverRate: string }[];
   seasonalRecommendations: { season: string; recommendations: string[]; priority: string }[];
   reorderAlerts: { tree: Tree; urgency: string; recommendedAction: string; daysUntilOutOfStock: number }[];
+  notifications: { id: string; type: 'critical' | 'warning'; title: string; message: string; tree?: Tree }[];
   keyKPIs: { 
     salesGrowth: number; 
     inventoryTurnover: number; 
@@ -90,6 +91,7 @@ interface BusinessMetrics {
 export default function AdminDashboard() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d');
   const [activeTab, setActiveTab] = useState('overview');
+  const [dismissedNotifications, setDismissedNotifications] = useState<string[]>([]);
 
   // Calculate comprehensive business metrics with advanced analytics
   const metrics: BusinessMetrics = useMemo(() => {
@@ -249,6 +251,44 @@ export default function AdminDashboard() {
       stockEfficiency: ((trees.length - outOfStockItems.length) / trees.length) * 100
     };
 
+    // Generate notifications
+    const notifications: { id: string; type: 'critical' | 'warning'; title: string; message: string; tree?: Tree }[] = [];
+    
+    // Out of stock alerts (critical)
+    outOfStockItems.forEach(tree => {
+      notifications.push({
+        id: `out-of-stock-${tree.id}`,
+        type: 'critical' as const,
+        title: 'Out of Stock',
+        message: `${tree.commonName} is completely out of stock`,
+        tree
+      });
+    });
+
+    // Low stock alerts (warning for ≤5 units)
+    const lowStockWarnings = trees.filter(tree => tree.quantityInStock > 0 && tree.quantityInStock <= 5);
+    lowStockWarnings.forEach(tree => {
+      notifications.push({
+        id: `low-stock-${tree.id}`,
+        type: 'warning' as const,
+        title: 'Low Stock Alert',
+        message: `${tree.commonName} has only ${tree.quantityInStock} units remaining`,
+        tree
+      });
+    });
+
+    // High value low stock alerts (critical for >$50 with ≤5 units)
+    const highValueLowStock = trees.filter(tree => tree.price > 50 && tree.quantityInStock > 0 && tree.quantityInStock <= 5);
+    highValueLowStock.forEach(tree => {
+      notifications.push({
+        id: `high-value-low-stock-${tree.id}`,
+        type: 'critical' as const,
+        title: 'Critical: High-Value Low Stock',
+        message: `${tree.commonName} ($${tree.price}) has only ${tree.quantityInStock} units left`,
+        tree
+      });
+    });
+
     return {
       totalInventoryValue,
       totalTrees,
@@ -262,6 +302,7 @@ export default function AdminDashboard() {
       inventoryTurnover,
       seasonalRecommendations,
       reorderAlerts,
+      notifications,
       keyKPIs
     };
   }, []);
@@ -321,7 +362,17 @@ export default function AdminDashboard() {
       <div className="mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Business Intelligence Dashboard</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Business Intelligence Dashboard</h1>
+              {metrics.notifications.filter(n => !dismissedNotifications.includes(n.id)).length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Bell className="h-5 w-5 text-orange-600" />
+                  <Badge variant="destructive" className="text-xs">
+                    {metrics.notifications.filter(n => !dismissedNotifications.includes(n.id)).length}
+                  </Badge>
+                </div>
+              )}
+            </div>
             <p className="text-muted-foreground">
               Advanced analytics and operational insights for Greentree Co.
             </p>
@@ -442,6 +493,202 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Critical Alerts Section */}
+          {(metrics.outOfStockItems.length > 0 || 
+            metrics.lowStockItems.length > 0 || 
+            trees.filter(tree => tree.price > 50 && tree.quantityInStock > 0 && tree.quantityInStock <= 5).length > 0) && (
+            <Card className="border-2 border-red-200 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-red-800">
+                  <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
+                    <AlertTriangle className="h-5 w-5 text-red-600" />
+                  </div>
+                  Critical Alerts
+                  <Badge variant="destructive" className="text-xs animate-pulse">
+                    {metrics.outOfStockItems.length + 
+                     metrics.lowStockItems.length + 
+                     trees.filter(tree => tree.price > 50 && tree.quantityInStock > 0 && tree.quantityInStock <= 5).length}
+                  </Badge>
+                </CardTitle>
+                <CardDescription className="text-red-700">
+                  Immediate attention required for inventory management
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Out of Stock Alerts - Red Critical */}
+                {metrics.outOfStockItems.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                      <h4 className="font-semibold text-red-800">Out of Stock Items ({metrics.outOfStockItems.length})</h4>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {metrics.outOfStockItems.slice(0, 6).map((tree) => (
+                        <div key={tree.id} className="p-4 rounded-lg border-2 border-red-400 bg-red-100 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="font-medium text-sm text-red-900">{tree.commonName}</div>
+                            <Badge variant="destructive" className="text-xs">CRITICAL</Badge>
+                          </div>
+                          <div className="space-y-1 text-xs text-red-700">
+                            <div className="flex justify-between">
+                              <span>Stock:</span>
+                              <span className="font-bold">0 units</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Price:</span>
+                              <span>${tree.price}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Category:</span>
+                              <span>{tree.category}</span>
+                            </div>
+                          </div>
+                          <div className="mt-2 text-xs font-medium text-red-800 bg-red-200 px-2 py-1 rounded">
+                            ⚠️ Reorder immediately
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* High Value Low Stock - Orange Priority */}
+                {trees.filter(tree => tree.price > 50 && tree.quantityInStock > 0 && tree.quantityInStock <= 5).length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
+                      <h4 className="font-semibold text-orange-800">
+                        High Value Low Stock ({trees.filter(tree => tree.price > 50 && tree.quantityInStock > 0 && tree.quantityInStock <= 5).length})
+                      </h4>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {trees.filter(tree => tree.price > 50 && tree.quantityInStock > 0 && tree.quantityInStock <= 5)
+                        .slice(0, 6).map((tree) => (
+                        <div key={tree.id} className="p-4 rounded-lg border-2 border-orange-400 bg-orange-100 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="font-medium text-sm text-orange-900">{tree.commonName}</div>
+                            <Badge className="text-xs bg-orange-500 hover:bg-orange-600">PRIORITY</Badge>
+                          </div>
+                          <div className="space-y-1 text-xs text-orange-700">
+                            <div className="flex justify-between">
+                              <span>Stock:</span>
+                              <span className="font-bold">{tree.quantityInStock} units</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Price:</span>
+                              <span className="font-bold">${tree.price}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Category:</span>
+                              <span>{tree.category}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Value at Risk:</span>
+                              <span className="font-bold">${(tree.price * tree.quantityInStock).toLocaleString()}</span>
+                            </div>
+                          </div>
+                          <div className="mt-2 text-xs font-medium text-orange-800 bg-orange-200 px-2 py-1 rounded">
+                            💰 High-value item - Reorder soon
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Low Stock Alerts - Yellow Warning */}
+                {metrics.lowStockItems.filter(tree => tree.price <= 50).length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                      <h4 className="font-semibold text-yellow-800">
+                        Low Stock Items ({metrics.lowStockItems.filter(tree => tree.price <= 50).length})
+                      </h4>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {metrics.lowStockItems.filter(tree => tree.price <= 50).slice(0, 6).map((tree) => (
+                        <div key={tree.id} className="p-4 rounded-lg border-2 border-yellow-400 bg-yellow-100 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="font-medium text-sm text-yellow-900">{tree.commonName}</div>
+                            <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-700">WARNING</Badge>
+                          </div>
+                          <div className="space-y-1 text-xs text-yellow-700">
+                            <div className="flex justify-between">
+                              <span>Stock:</span>
+                              <span className="font-bold">{tree.quantityInStock} units</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Price:</span>
+                              <span>${tree.price}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Category:</span>
+                              <span>{tree.category}</span>
+                            </div>
+                          </div>
+                          <div className="mt-2 text-xs font-medium text-yellow-800 bg-yellow-200 px-2 py-1 rounded">
+                            ⚡ Monitor and reorder when convenient
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Notifications */}
+          {metrics.notifications.filter(n => !dismissedNotifications.includes(n.id)).length > 0 && (
+            <Card className="border-orange-200 bg-orange-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-orange-800">
+                  <Bell className="h-5 w-5" />
+                  Notifications
+                  <Badge variant="secondary" className="text-xs">
+                    {metrics.notifications.filter(n => !dismissedNotifications.includes(n.id)).length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {metrics.notifications.filter(n => !dismissedNotifications.includes(n.id)).map((notification) => (
+                    <div key={notification.id} className={`p-4 rounded-lg border-2 ${
+                      notification.type === 'critical' ? 'border-red-300 bg-red-50' : 'border-yellow-300 bg-yellow-50'
+                    }`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="font-medium text-sm">{notification.title}</div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={notification.type === 'critical' ? 'destructive' : 'secondary'} className="text-xs">
+                            {notification.type === 'critical' ? 'Critical' : 'Warning'}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-gray-200"
+                            onClick={() => setDismissedNotifications(prev => [...prev, notification.id])}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground mb-2">
+                        {notification.message}
+                      </div>
+                      {notification.tree && (
+                        <div className="space-y-1 text-xs text-muted-foreground">
+                          <div>Stock: {notification.tree.quantityInStock} units</div>
+                          <div>Price: ${notification.tree.price}</div>
+                          <div>Category: {notification.tree.category}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Critical Alerts */}
           {metrics.reorderAlerts.length > 0 && (
