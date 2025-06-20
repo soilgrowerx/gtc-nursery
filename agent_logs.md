@@ -129,3 +129,44 @@ Building an inventory management platform for Greentree Co. with:
     ]
 }
 ```
+
+### Version 0.2.0 - Major Enhancement Release 🚀
+```json
+{
+    "version": "0.2.0",
+    "git_commit_hash": "cd4b4dd",
+    "is_successfully_deployed": true,
+    "functionality_changes": [
+        {
+            "description": "REAL DATA INTEGRATION: Successfully processed Excel inventory file (GTC Availability 3-29-24.xlsx) containing 50 real trees with proper pricing, SKUs, and availability"
+        },
+        {
+            "description": "ADVANCED FILTERING SYSTEM: Added price range slider ($10-$175), size-based filtering (Small/Large trees), availability status filtering (In Stock/Low Stock/Out of Stock)"
+        },
+        {
+            "description": "ENHANCED SEARCH: Multi-field search across tree names, botanical names, categories, and SKUs with real-time filtering"
+        },
+        {
+            "description": "EXPORT FUNCTIONALITY: Added CSV export for inventory results and client requests with date-stamped filenames"
+        },
+        {
+            "description": "PAGINATION SYSTEM: Implemented 12 items per page with numbered page navigation (5 pages total for 50 trees)"
+        },
+        {
+            "description": "IMPROVED SORTING: Added size-based sorting alongside existing name, price, and stock sorting options"
+        },
+        {
+            "description": "ENHANCED UX: Added loading skeletons, clear filters functionality, and improved responsive design"
+        },
+        {
+            "description": "COMPREHENSIVE REQUEST FORM: All 50+ real tree names available as checkboxes in client request form with professional layout"
+        },
+        {
+            "description": "PROFESSIONAL TREE DETAILS: Enhanced tree detail pages with real botanical names, proper SKUs, accurate pricing, and stock levels"
+        },
+        {
+            "description": "Successfully deployed and tested live at https://fern-app-proud-feather-7255.fly.dev/ with all features working perfectly"
+        }
+    ]
+}
+```
