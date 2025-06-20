@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Trees, Home, Users, FileText, Heart } from 'lucide-react';
+import { Trees, Home, Users, FileText, Heart, Settings } from 'lucide-react';
 import Image from 'next/image';
 import { useWishlist } from '@/hooks/use-wishlist';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/inventory', label: 'Inventory', icon: Trees },
   { href: '/requests', label: 'Client Requests', icon: Users },
+  { href: '/admin', label: 'Admin', icon: Settings },
 ];
 
 export function Navigation() {
