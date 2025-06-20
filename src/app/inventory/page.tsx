@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart, AlertTriangle, DollarSign, Package, X } from 'lucide-react';
 import { Tree, TreeFilter } from '@/types/tree';
 import { useWishlist } from '@/hooks/use-wishlist';
 import treesData from '../../../data/trees.json';
@@ -46,6 +46,7 @@ export default function InventoryPage() {
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeQuickFilter, setActiveQuickFilter] = useState<'lowStock' | 'highValue' | 'outOfStock' | null>(null);
   const itemsPerPage = 12;
 
   // Simulate loading when filters change
@@ -91,8 +92,18 @@ export default function InventoryPage() {
           default: return true;
         }
       })();
+
+      // Quick filter logic
+      const matchesQuickFilter = (() => {
+        switch (activeQuickFilter) {
+          case 'lowStock': return tree.quantityInStock > 0 && tree.quantityInStock <= 5;
+          case 'highValue': return tree.price > 50;
+          case 'outOfStock': return tree.quantityInStock === 0;
+          default: return true;
+        }
+      })();
       
-      return matchesSearch && matchesCategory && matchesSize && matchesPrice && matchesAvailability;
+      return matchesSearch && matchesCategory && matchesSize && matchesPrice && matchesAvailability && matchesQuickFilter;
     });
 
     filtered.sort((a, b) => {
@@ -120,7 +131,7 @@ export default function InventoryPage() {
     });
 
     return filtered;
-  }, [filters]);
+  }, [filters, activeQuickFilter]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredAndSortedTrees.length / itemsPerPage);
@@ -251,6 +262,12 @@ export default function InventoryPage() {
       sortBy: 'name',
       sortOrder: 'asc'
     });
+    setActiveQuickFilter(null);
+    setCurrentPage(1);
+  };
+
+  const handleQuickFilter = (filterType: 'lowStock' | 'highValue' | 'outOfStock' | null) => {
+    setActiveQuickFilter(activeQuickFilter === filterType ? null : filterType);
     setCurrentPage(1);
   };
 
@@ -483,12 +500,109 @@ export default function InventoryPage() {
             </Badge>
             {(filters.searchTerm || filters.category || filters.sizeFilter || 
               filters.priceRange.min > priceRange.min || filters.priceRange.max < priceRange.max || 
-              filters.availabilityFilter !== 'all') && (
+              filters.availabilityFilter !== 'all' || activeQuickFilter) && (
               <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-8 px-2 text-xs">
                 Clear Filters
               </Button>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Quick Filter Toolbar */}
+      <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-gray-600" />
+            <span className="font-medium text-sm text-gray-700">Quick Filters:</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {/* Show Low Stock */}
+            <Button
+              variant={activeQuickFilter === 'lowStock' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickFilter('lowStock')}
+              className={`h-8 px-3 text-xs font-medium transition-all ${
+                activeQuickFilter === 'lowStock' 
+                  ? 'bg-yellow-500 hover:bg-yellow-600 text-white shadow-md border-yellow-500' 
+                  : 'hover:bg-yellow-50 hover:border-yellow-300 hover:text-yellow-700'
+              }`}
+            >
+              <AlertTriangle className="h-3 w-3 mr-1.5" />
+              Low Stock
+              {activeQuickFilter === 'lowStock' && (
+                <X className="h-3 w-3 ml-1.5" />
+              )}
+            </Button>
+
+            {/* Show High Value */}
+            <Button
+              variant={activeQuickFilter === 'highValue' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickFilter('highValue')}
+              className={`h-8 px-3 text-xs font-medium transition-all ${
+                activeQuickFilter === 'highValue' 
+                  ? 'bg-green-600 hover:bg-green-700 text-white shadow-md border-green-600' 
+                  : 'hover:bg-green-50 hover:border-green-300 hover:text-green-700'
+              }`}
+            >
+              <DollarSign className="h-3 w-3 mr-1.5" />
+              High Value
+              {activeQuickFilter === 'highValue' && (
+                <X className="h-3 w-3 ml-1.5" />
+              )}
+            </Button>
+
+            {/* Show Out of Stock */}
+            <Button
+              variant={activeQuickFilter === 'outOfStock' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuickFilter('outOfStock')}
+              className={`h-8 px-3 text-xs font-medium transition-all ${
+                activeQuickFilter === 'outOfStock' 
+                  ? 'bg-red-500 hover:bg-red-600 text-white shadow-md border-red-500' 
+                  : 'hover:bg-red-50 hover:border-red-300 hover:text-red-700'
+              }`}
+            >
+              <Package className="h-3 w-3 mr-1.5" />
+              Out of Stock
+              {activeQuickFilter === 'outOfStock' && (
+                <X className="h-3 w-3 ml-1.5" />
+              )}
+            </Button>
+
+            {/* Show All */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleQuickFilter(null)}
+              className={`h-8 px-3 text-xs font-medium transition-all ${
+                !activeQuickFilter 
+                  ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                  : 'hover:bg-blue-50 hover:text-blue-600'
+              }`}
+            >
+              Show All
+            </Button>
+          </div>
+
+          {/* Active Filter Indicator */}
+          {activeQuickFilter && (
+            <div className="flex items-center gap-2 ml-auto">
+              <Badge 
+                variant="secondary" 
+                className={`text-xs ${
+                  activeQuickFilter === 'lowStock' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                  activeQuickFilter === 'highValue' ? 'bg-green-100 text-green-800 border-green-200' :
+                  activeQuickFilter === 'outOfStock' ? 'bg-red-100 text-red-800 border-red-200' : ''
+                }`}
+              >
+                {activeQuickFilter === 'lowStock' && '≤5 units'}
+                {activeQuickFilter === 'highValue' && '>$50'}
+                {activeQuickFilter === 'outOfStock' && '0 units'}
+              </Badge>
+            </div>
+          )}
         </div>
       </div>
 
