@@ -170,3 +170,38 @@ Building an inventory management platform for Greentree Co. with:
     ]
 }
 ```
+
+### Version 0.2.1 - Wishlist/Favorites Feature ❤️
+```json
+{
+    "version": "0.2.1",
+    "git_commit_hash": "67d2f00",
+    "is_successfully_deployed": true,
+    "functionality_changes": [
+        {
+            "description": "WISHLIST FUNCTIONALITY: Added heart icons to all tree cards for instant favoriting with visual feedback (gray outline → red filled)"
+        },
+        {
+            "description": "PERSISTENT FAVORITES: localStorage-based wishlist that survives browser sessions and page refreshes"
+        },
+        {
+            "description": "DEDICATED WISHLIST PAGE: New /wishlist route showing all favorited trees with counter (e.g., 'Your favorite trees (1 item)')"
+        },
+        {
+            "description": "NAVIGATION INTEGRATION: Added 'Wishlist' link to main navigation with heart icon and active state styling"
+        },
+        {
+            "description": "WISHLIST EXPORT: CSV export functionality for wishlist with date-stamped filenames (wishlist_2025-06-20.csv)"
+        },
+        {
+            "description": "WISHLIST MANAGEMENT: Clear all favorites functionality and individual tree removal from wishlist"
+        },
+        {
+            "description": "PROFESSIONAL UX: Empty states, instant visual feedback, responsive design, consistent styling with main app"
+        },
+        {
+            "description": "Successfully tested and deployed - heart icons, favorites persistence, wishlist page, CSV export all working perfectly in production"
+        }
+    ]
+}
+```
