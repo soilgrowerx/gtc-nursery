@@ -953,3 +953,296 @@ function getAppMetadata() {
     categories: [...new Set(TREE_DATA.map(tree => tree.category))].sort()
   };
 }
+
+// Sample client request data for business operations
+const SAMPLE_CLIENT_REQUESTS = [
+  {
+    id: 'REQ-001',
+    clientName: 'Austin Parks & Recreation',
+    email: 'procurement@austintexas.gov',
+    phone: '(512) 974-6700',
+    requestDate: '2024-06-15',
+    status: 'pending',
+    priority: 'high',
+    projectType: 'Municipal Landscaping',
+    requestedTrees: [
+      { treeId: '30', commonName: 'Oak, Shumard Red', quantity: 25, unitPrice: 12 },
+      { treeId: '26', commonName: 'Oak, Escarpment Live', quantity: 15, unitPrice: 16 },
+      { treeId: '16', commonName: 'Elm, Cedar', quantity: 30, unitPrice: 14 }
+    ],
+    totalValue: 970,
+    notes: 'Needed for Zilker Park restoration project. Delivery required by August 15th.',
+    deliveryAddress: '2100 Barton Springs Rd, Austin, TX 78746'
+  },
+  {
+    id: 'REQ-002',
+    clientName: 'Highland Homes',
+    email: 'landscaping@highland-homes.com',
+    phone: '(512) 478-8500',
+    requestDate: '2024-06-18',
+    status: 'approved',
+    priority: 'medium',
+    projectType: 'Residential Development',
+    requestedTrees: [
+      { treeId: '49', commonName: 'Redbud, Texas', quantity: 12, unitPrice: 175 },
+      { treeId: '18', commonName: 'Holly, Yaupon Pride of Houston', quantity: 8, unitPrice: 40 },
+      { treeId: '34', commonName: 'Redbud, Texas', quantity: 10, unitPrice: 40 }
+    ],
+    totalValue: 2720,
+    notes: 'For new subdivision in Cedar Park. Phase 1 of 3-phase project.',
+    deliveryAddress: '1400 E Whitestone Blvd, Cedar Park, TX 78613'
+  },
+  {
+    id: 'REQ-003',
+    clientName: 'University of Texas',
+    email: 'facilities@utexas.edu',
+    phone: '(512) 471-3434',
+    requestDate: '2024-06-20',
+    status: 'quoted',
+    priority: 'low',
+    projectType: 'Campus Beautification',
+    requestedTrees: [
+      { treeId: '43', commonName: 'Cypress, Bald', quantity: 6, unitPrice: 160 },
+      { treeId: '48', commonName: 'Pecan, Native', quantity: 4, unitPrice: 160 },
+      { treeId: '22', commonName: 'Oak, Burr', quantity: 8, unitPrice: 55 }
+    ],
+    totalValue: 2000,
+    notes: 'Campus sustainability initiative. Flexible timeline.',
+    deliveryAddress: '110 Inner Campus Dr, Austin, TX 78712'
+  },
+  {
+    id: 'REQ-004',
+    clientName: 'Four Points Landscape Co.',
+    email: 'orders@fourpointslandscape.com',
+    phone: '(512) 266-7300',
+    requestDate: '2024-06-19',
+    status: 'fulfilled',
+    priority: 'high',
+    projectType: 'Commercial Landscaping',
+    requestedTrees: [
+      { treeId: '32', commonName: 'Osage, Orange', quantity: 20, unitPrice: 14 },
+      { treeId: '37', commonName: 'Sycamore, American', quantity: 15, unitPrice: 14 },
+      { treeId: '5', commonName: 'Buckthorn, Carolina', quantity: 10, unitPrice: 14 }
+    ],
+    totalValue: 630,
+    notes: 'Regular customer. Delivery completed successfully.',
+    deliveryAddress: '15201 N IH 35, Austin, TX 78728'
+  },
+  {
+    id: 'REQ-005',
+    clientName: 'Homeowner - Sarah Johnson',
+    email: 'sarah.johnson@email.com',
+    phone: '(512) 555-0123',
+    requestDate: '2024-06-21',
+    status: 'pending',
+    priority: 'low',
+    projectType: 'Residential Yard',
+    requestedTrees: [
+      { treeId: '1', commonName: 'Anacua', quantity: 2, unitPrice: 14 },
+      { treeId: '7', commonName: 'Cherry, Escarpment (R)', quantity: 1, unitPrice: 20 }
+    ],
+    totalValue: 48,
+    notes: 'First-time customer. Interested in native species for backyard.',
+    deliveryAddress: '2505 Exposition Blvd, Austin, TX 78703'
+  }
+];
+
+/**
+ * Server-side function to export inventory data in CSV format
+ * Called from client-side JavaScript
+ */
+function exportInventoryData(filteredTreeIds) {
+  try {
+    // If no specific trees provided, export all
+    let treesToExport = TREE_DATA;
+    
+    // If filtered tree IDs provided, filter the data
+    if (filteredTreeIds && filteredTreeIds.length > 0) {
+      treesToExport = TREE_DATA.filter(tree => filteredTreeIds.includes(tree.id));
+    }
+    
+    // Define CSV headers
+    const headers = [
+      'SKU',
+      'Common Name', 
+      'Botanical Name',
+      'Category',
+      'Size',
+      'Price ($)',
+      'Quantity in Stock',
+      'Stock Status',
+      'Stock Value ($)',
+      'Description',
+      'Planting Care Info',
+      'iNaturalist URL'
+    ];
+    
+    // Convert tree data to CSV rows
+    const csvRows = treesToExport.map(tree => {
+      const stockStatus = tree.quantityInStock === 0 ? 'Out of Stock' :
+                         tree.quantityInStock <= 5 ? 'Low Stock' : 'In Stock';
+      const stockValue = tree.price * tree.quantityInStock;
+      
+      return [
+        tree.sku,
+        tree.commonName,
+        tree.botanicalName,
+        tree.category,
+        tree.size,
+        tree.price,
+        tree.quantityInStock,
+        stockStatus,
+        stockValue.toFixed(2),
+        tree.description.replace(/"/g, '""'), // Escape quotes
+        tree.plantingCareInfo.replace(/"/g, '""'), // Escape quotes
+        tree.iNaturalistUrl
+      ];
+    });
+    
+    // Calculate summary statistics
+    const totalTrees = treesToExport.length;
+    const totalValue = treesToExport.reduce((sum, tree) => sum + (tree.price * tree.quantityInStock), 0);
+    const inStockCount = treesToExport.filter(tree => tree.quantityInStock > 0).length;
+    const outOfStockCount = treesToExport.filter(tree => tree.quantityInStock === 0).length;
+    
+    return {
+      success: true,
+      data: {
+        headers: headers,
+        rows: csvRows,
+        metadata: {
+          exportDate: new Date().toISOString(),
+          totalTrees: totalTrees,
+          totalValue: totalValue.toFixed(2),
+          inStockCount: inStockCount,
+          outOfStockCount: outOfStockCount,
+          categories: [...new Set(treesToExport.map(tree => tree.category))]
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Error exporting inventory data:', error);
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
+ * Server-side function to export client request data in CSV format
+ * Called from client-side JavaScript
+ */
+function exportClientRequests(statusFilter) {
+  try {
+    // Filter requests by status if provided
+    let requestsToExport = SAMPLE_CLIENT_REQUESTS;
+    if (statusFilter && statusFilter !== 'all') {
+      requestsToExport = SAMPLE_CLIENT_REQUESTS.filter(request => request.status === statusFilter);
+    }
+    
+    // Define CSV headers for client requests
+    const headers = [
+      'Request ID',
+      'Client Name',
+      'Email',
+      'Phone',
+      'Request Date',
+      'Status',
+      'Priority',
+      'Project Type',
+      'Total Value ($)',
+      'Tree Count',
+      'Tree Details',
+      'Notes',
+      'Delivery Address'
+    ];
+    
+    // Convert request data to CSV rows
+    const csvRows = requestsToExport.map(request => {
+      const treeCount = request.requestedTrees.reduce((sum, tree) => sum + tree.quantity, 0);
+      const treeDetails = request.requestedTrees.map(tree => 
+        `${tree.quantity}x ${tree.commonName} ($${tree.unitPrice})`
+      ).join('; ');
+      
+      return [
+        request.id,
+        request.clientName,
+        request.email,
+        request.phone,
+        request.requestDate,
+        request.status.charAt(0).toUpperCase() + request.status.slice(1),
+        request.priority.charAt(0).toUpperCase() + request.priority.slice(1),
+        request.projectType,
+        request.totalValue.toFixed(2),
+        treeCount,
+        treeDetails.replace(/"/g, '""'), // Escape quotes
+        request.notes.replace(/"/g, '""'), // Escape quotes
+        request.deliveryAddress
+      ];
+    });
+    
+    // Calculate summary statistics
+    const totalRequests = requestsToExport.length;
+    const totalValue = requestsToExport.reduce((sum, request) => sum + request.totalValue, 0);
+    const statusCounts = requestsToExport.reduce((counts, request) => {
+      counts[request.status] = (counts[request.status] || 0) + 1;
+      return counts;
+    }, {});
+    
+    return {
+      success: true,
+      data: {
+        headers: headers,
+        rows: csvRows,
+        metadata: {
+          exportDate: new Date().toISOString(),
+          totalRequests: totalRequests,
+          totalValue: totalValue.toFixed(2),
+          statusCounts: statusCounts,
+          averageRequestValue: totalRequests > 0 ? (totalValue / totalRequests).toFixed(2) : '0.00'
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Error exporting client requests:', error);
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
+ * Server-side function to get client request summary data
+ * Called from client-side JavaScript
+ */
+function getClientRequestSummary() {
+  try {
+    const statusCounts = SAMPLE_CLIENT_REQUESTS.reduce((counts, request) => {
+      counts[request.status] = (counts[request.status] || 0) + 1;
+      return counts;
+    }, {});
+    
+    const totalValue = SAMPLE_CLIENT_REQUESTS.reduce((sum, request) => sum + request.totalValue, 0);
+    
+    return {
+      success: true,
+      data: {
+        totalRequests: SAMPLE_CLIENT_REQUESTS.length,
+        statusCounts: statusCounts,
+        totalValue: totalValue.toFixed(2),
+        averageValue: SAMPLE_CLIENT_REQUESTS.length > 0 ? (totalValue / SAMPLE_CLIENT_REQUESTS.length).toFixed(2) : '0.00',
+        recentRequests: SAMPLE_CLIENT_REQUESTS
+          .sort((a, b) => new Date(b.requestDate) - new Date(a.requestDate))
+          .slice(0, 5)
+      }
+    };
+  } catch (error) {
+    console.error('Error getting client request summary:', error);
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}

@@ -497,6 +497,296 @@ function formatDate(date) {
     }).format(new Date(date));
 }
 
+/**
+ * Export filtered inventory data to CSV
+ */
+function exportFilteredInventory() {
+    console.log('Exporting filtered inventory data...');
+    
+    // Get currently filtered tree IDs
+    const filteredTreeIds = getCurrentlyFilteredTreeIds();
+    
+    // Show loading state
+    UIManager.showLoadingState();
+    
+    // Call server-side export function
+    google.script.run
+        .withSuccessHandler(handleInventoryExportSuccess)
+        .withFailureHandler(handleExportError)
+        .exportInventoryData(filteredTreeIds);
+}
+
+/**
+ * Get currently filtered tree IDs
+ */
+function getCurrentlyFilteredTreeIds() {
+    if (!appData.isLoaded) {
+        return [];
+    }
+    
+    // Apply current filters to get filtered trees
+    const filteredTrees = filterTrees(
+        appData.trees,
+        currentFilters.search || '',
+        currentFilters.category || '',
+        currentFilters.minPrice || 0,
+        currentFilters.maxPrice || 999,
+        currentFilters.availability || 'all'
+    );
+    
+    return filteredTrees.map(tree => tree.id);
+}
+
+/**
+ * Handle successful inventory export
+ */
+function handleInventoryExportSuccess(response) {
+    UIManager.hideLoadingState();
+    
+    if (!response.success) {
+        handleExportError(response.error);
+        return;
+    }
+    
+    // Generate filename with current date
+    const today = new Date().toISOString().split('T')[0];
+    const filename = `greentree-inventory-${today}.csv`;
+    
+    // Create and download CSV
+    downloadCSV(response.data, filename);
+    
+    // Log export action
+    logUserAction('inventory_exported', {
+        treeCount: response.data.metadata.totalTrees,
+        totalValue: response.data.metadata.totalValue,
+        filename: filename
+    });
+    
+    // Show success message
+    showExportSuccessMessage('Inventory', response.data.metadata.totalTrees);
+}
+
+/**
+ * Export client requests data to CSV
+ */
+function exportClientRequests(statusFilter = 'all') {
+    console.log('Exporting client requests data...');
+    
+    // Show loading state
+    UIManager.showLoadingState();
+    
+    // Call server-side export function
+    google.script.run
+        .withSuccessHandler(handleClientRequestsExportSuccess)
+        .withFailureHandler(handleExportError)
+        .exportClientRequests(statusFilter);
+}
+
+/**
+ * Handle successful client requests export
+ */
+function handleClientRequestsExportSuccess(response) {
+    UIManager.hideLoadingState();
+    
+    if (!response.success) {
+        handleExportError(response.error);
+        return;
+    }
+    
+    // Generate filename with current date
+    const today = new Date().toISOString().split('T')[0];
+    const filename = `greentree-client-requests-${today}.csv`;
+    
+    // Create and download CSV
+    downloadCSV(response.data, filename);
+    
+    // Log export action
+    logUserAction('client_requests_exported', {
+        requestCount: response.data.metadata.totalRequests,
+        totalValue: response.data.metadata.totalValue,
+        filename: filename
+    });
+    
+    // Show success message
+    showExportSuccessMessage('Client Requests', response.data.metadata.totalRequests);
+}
+
+/**
+ * Create and download CSV file
+ */
+function downloadCSV(data, filename) {
+    try {
+        // Create CSV content
+        const csvContent = createCSVContent(data);
+        
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up the URL object
+        URL.revokeObjectURL(url);
+        
+        console.log(`CSV file ${filename} downloaded successfully`);
+    } catch (error) {
+        console.error('Error downloading CSV:', error);
+        handleExportError(error.toString());
+    }
+}
+
+/**
+ * Create CSV content from data
+ */
+function createCSVContent(data) {
+    const { headers, rows, metadata } = data;
+    
+    // Start with headers
+    let csvContent = headers.map(header => `"${header}"`).join(',') + '\n';
+    
+    // Add data rows
+    rows.forEach(row => {
+        const csvRow = row.map(cell => {
+            // Handle different data types
+            if (cell === null || cell === undefined) {
+                return '""';
+            }
+            // Convert to string and escape quotes
+            const cellStr = String(cell).replace(/"/g, '""');
+            return `"${cellStr}"`;
+        }).join(',');
+        csvContent += csvRow + '\n';
+    });
+    
+    // Add metadata as comments at the end
+    csvContent += '\n// Export Metadata\n';
+    csvContent += `// Export Date: ${metadata.exportDate}\n`;
+    if (metadata.totalTrees !== undefined) {
+        csvContent += `// Total Trees: ${metadata.totalTrees}\n`;
+        csvContent += `// Total Value: $${metadata.totalValue}\n`;
+        csvContent += `// In Stock: ${metadata.inStockCount}\n`;
+        csvContent += `// Out of Stock: ${metadata.outOfStockCount}\n`;
+    }
+    if (metadata.totalRequests !== undefined) {
+        csvContent += `// Total Requests: ${metadata.totalRequests}\n`;
+        csvContent += `// Total Value: $${metadata.totalValue}\n`;
+        csvContent += `// Average Request Value: $${metadata.averageRequestValue}\n`;
+    }
+    
+    return csvContent;
+}
+
+/**
+ * Handle export errors
+ */
+function handleExportError(error) {
+    console.error('Export error:', error);
+    UIManager.hideLoadingState();
+    
+    // Show user-friendly error message
+    const errorMessage = typeof error === 'string' ? error : 'Failed to export data. Please try again.';
+    showExportErrorMessage(errorMessage);
+}
+
+/**
+ * Show export success message
+ */
+function showExportSuccessMessage(exportType, itemCount) {
+    // Create a temporary success message
+    const message = document.createElement('div');
+    message.className = 'export-success-message';
+    message.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4a7c1f;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            font-weight: 500;
+        ">
+            ✅ ${exportType} exported successfully! (${itemCount} items)
+        </div>
+    `;
+    
+    document.body.appendChild(message);
+    
+    // Remove message after 3 seconds
+    setTimeout(() => {
+        if (message.parentNode) {
+            message.parentNode.removeChild(message);
+        }
+    }, 3000);
+}
+
+/**
+ * Show export error message
+ */
+function showExportErrorMessage(errorText) {
+    // Create a temporary error message
+    const message = document.createElement('div');
+    message.className = 'export-error-message';
+    message.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            font-weight: 500;
+        ">
+            ❌ Export failed: ${errorText}
+        </div>
+    `;
+    
+    document.body.appendChild(message);
+    
+    // Remove message after 5 seconds
+    setTimeout(() => {
+        if (message.parentNode) {
+            message.parentNode.removeChild(message);
+        }
+    }, 5000);
+}
+
+/**
+ * Get export statistics for current filters
+ */
+function getExportStatistics() {
+    if (!appData.isLoaded) {
+        return { totalTrees: 0, filteredTrees: 0 };
+    }
+    
+    const filteredTrees = filterTrees(
+        appData.trees,
+        currentFilters.search || '',
+        currentFilters.category || '',
+        currentFilters.minPrice || 0,
+        currentFilters.maxPrice || 999,
+        currentFilters.availability || 'all'
+    );
+    
+    return {
+        totalTrees: appData.trees.length,
+        filteredTrees: filteredTrees.length,
+        totalValue: filteredTrees.reduce((sum, tree) => sum + (tree.price * tree.quantityInStock), 0)
+    };
+}
+
 // Export main functions for global access
 window.TreeInventory = {
     initializeApp,
@@ -507,7 +797,10 @@ window.TreeInventory = {
     getTreeRecommendations,
     formatCurrency,
     formatDate,
-    logUserAction
+    logUserAction,
+    exportFilteredInventory,
+    exportClientRequests,
+    getExportStatistics
 };
 
 // Expose clearAllFilters globally for HTML onclick

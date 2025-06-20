@@ -298,12 +298,23 @@ function displayTrees(trees) {
     const treeGrid = document.getElementById('treeGrid');
     const noResults = document.getElementById('noResults');
     const resultsCount = document.getElementById('resultsCount');
+    const exportInfo = document.getElementById('exportInfo');
     
     if (!treeGrid) return;
     
     // Update results count
     if (resultsCount) {
         resultsCount.textContent = `${trees.length} result${trees.length !== 1 ? 's' : ''}`;
+    }
+    
+    // Update export info
+    if (exportInfo && typeof TreeInventory !== 'undefined') {
+        const stats = TreeInventory.getExportStatistics();
+        if (stats.filteredTrees !== stats.totalTrees) {
+            exportInfo.textContent = `(${stats.filteredTrees} of ${stats.totalTrees} trees will be exported)`;
+        } else {
+            exportInfo.textContent = `(All ${stats.totalTrees} trees will be exported)`;
+        }
     }
     
     if (trees.length === 0) {

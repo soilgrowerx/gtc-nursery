@@ -78,9 +78,23 @@
                 <button id="sortStock" class="sort-btn" data-sort="stock">Stock</button>
             </div>
 
+            <!-- Export Controls -->
+            <div class="export-controls">
+                <label class="sort-label">Export Data:</label>
+                <button id="exportInventory" class="btn btn-outline btn-small" onclick="TreeInventory.exportFilteredInventory()">
+                    📄 Export Inventory
+                </button>
+                <button id="exportRequests" class="btn btn-outline btn-small" onclick="TreeInventory.exportClientRequests()">
+                    📋 Export Requests
+                </button>
+            </div>
+
             <!-- Results Count -->
             <div class="results-info">
                 <span id="resultsCount" class="results-count">Loading...</span>
+                <span id="exportInfo" class="export-info" style="margin-left: 1rem; font-size: 0.85rem; color: #666;">
+                    <!-- Export info will be updated by JavaScript -->
+                </span>
             </div>
         </div>
 
