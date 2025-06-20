@@ -7,6 +7,27 @@
     
     <!-- Include stylesheet -->
     <?!= include('stylesheet'); ?>
+    
+    <!-- Local development stylesheet (for when running locally) -->
+    <script>
+        // Load stylesheet for local development
+        if (document.location.protocol === 'file:' || document.location.hostname === 'localhost' || document.location.hostname === '127.0.0.1') {
+            fetch('stylesheet.html')
+                .then(response => response.text())
+                .then(html => {
+                    // Extract style content from HTML
+                    const styleMatch = html.match(/<style>([\s\S]*)<\/style>/);
+                    if (styleMatch) {
+                        const style = document.createElement('style');
+                        style.innerHTML = styleMatch[1];
+                        document.head.appendChild(style);
+                    }
+                })
+                .catch(error => {
+                    console.warn('Could not load local stylesheet:', error);
+                });
+        }
+    </script>
 </head>
 <body>
     <!-- Navigation Header -->
@@ -143,13 +164,53 @@
     <?!= include('ui'); ?>
     <?!= include('logic'); ?>
 
-    <!-- Initialize the app -->
+    <!-- Local development includes (for when running locally) -->
     <script>
-        // Initialize the application when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        // Function to load script content from HTML file
+        async function loadScriptFromHTML(filename) {
+            try {
+                const response = await fetch(filename);
+                const html = await response.text();
+                const scriptMatch = html.match(/<script>([\s\S]*)<\/script>/);
+                if (scriptMatch) {
+                    const script = document.createElement('script');
+                    script.innerHTML = scriptMatch[1];
+                    document.head.appendChild(script);
+                    return true;
+                }
+            } catch (error) {
+                console.warn(`Could not load ${filename}:`, error);
+            }
+            return false;
+        }
+
+        // Initialize app function
+        async function initializeApplication() {
             console.log('Initializing Greentree Co. Tree Inventory App');
-            initializeApp();
-        });
+            
+            // Check if we're running locally and need to load scripts manually
+            if (typeof initializeApp === 'undefined') {
+                console.log('Running locally - loading scripts manually');
+                
+                // Load UI and Logic scripts in sequence
+                await loadScriptFromHTML('ui.html');
+                await loadScriptFromHTML('logic.html');
+                
+                // Small delay to ensure scripts are processed
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            // Try to initialize the app
+            if (typeof initializeApp !== 'undefined') {
+                console.log('Initializing app...');
+                initializeApp();
+            } else {
+                console.error('initializeApp function not found - check script loading');
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initializeApplication);
     </script>
 </body>
 </html>

@@ -293,6 +293,9 @@ function hideLoadingState() {
  * Display trees in the grid
  */
 function displayTrees(trees) {
+    console.log('=== UIManager.displayTrees CALLED ===');
+    console.log('displayTrees called with', trees.length, 'trees');
+    console.log('Sample tree data:', trees.length > 0 ? trees[0] : 'No trees to show');
     hideLoadingState();
     
     const treeGrid = document.getElementById('treeGrid');
@@ -300,7 +303,11 @@ function displayTrees(trees) {
     const resultsCount = document.getElementById('resultsCount');
     const exportInfo = document.getElementById('exportInfo');
     
-    if (!treeGrid) return;
+    if (!treeGrid) {
+        console.error('Tree grid container not found!');
+        return;
+    }
+    console.log('Tree grid container found:', treeGrid);
     
     // Update results count
     if (resultsCount) {
@@ -328,48 +335,84 @@ function displayTrees(trees) {
     
     // Generate tree cards HTML
     const treesHTML = trees.map(tree => createTreeCardHTML(tree)).join('');
+    console.log('Generated HTML for', trees.length, 'trees');
     
-    // Update the grid
+    // Clear existing content and update the grid
+    treeGrid.innerHTML = '';
     treeGrid.innerHTML = treesHTML;
     treeGrid.style.display = 'grid';
     
+    // Force a reflow to ensure the grid is properly displayed
+    treeGrid.offsetHeight;
+    
     // Add click listeners to tree cards
     addTreeCardListeners();
+    
+    console.log('Tree cards displayed successfully');
+}
+
+/**
+ * Alternative function name for displaying tree cards
+ * (Alias for displayTrees function)
+ */
+function displayTreeCards(trees) {
+    console.log('displayTreeCards called - redirecting to displayTrees');
+    return displayTrees(trees);
 }
 
 /**
  * Create HTML for a tree card
  */
 function createTreeCardHTML(tree) {
+    if (!tree) {
+        console.warn('createTreeCardHTML called with null/undefined tree');
+        return '';
+    }
+    
     const stockBadge = tree.quantityInStock > 0 
         ? `<span class="badge badge-stock">${tree.quantityInStock} in stock</span>`
         : `<span class="badge badge-out-of-stock">Out of stock</span>`;
+    
+    // Check if isInWishlist function is available
+    let isFavorited = false;
+    if (typeof isInWishlist === 'function') {
+        isFavorited = isInWishlist(tree.id);
+    }
+    
+    const heartIcon = isFavorited 
+        ? '<span class="heart-icon favorited">❤️</span>'
+        : '<span class="heart-icon">🤍</span>';
     
     return `
         <div class="tree-card fade-in" data-tree-id="${tree.id}">
             <div class="tree-card-header">
                 <div class="tree-card-badges">
-                    <span class="badge badge-category">${tree.category}</span>
+                    <span class="badge badge-category">${tree.category || 'Uncategorized'}</span>
                     ${stockBadge}
                 </div>
-                <h3 class="tree-card-title">${tree.commonName}</h3>
-                <div class="tree-card-botanical">${tree.botanicalName}</div>
+                <div class="tree-card-title-row">
+                    <h3 class="tree-card-title">${tree.commonName || 'Unknown Tree'}</h3>
+                    <button class="wishlist-btn" data-tree-id="${tree.id}" onclick="toggleWishlist('${tree.id}')" title="${isFavorited ? 'Remove from favorites' : 'Add to favorites'}">
+                        ${heartIcon}
+                    </button>
+                </div>
+                <div class="tree-card-botanical">${tree.botanicalName || ''}</div>
             </div>
             <div class="tree-card-body">
-                <p class="tree-card-description">${tree.description}</p>
+                <p class="tree-card-description">${tree.description || 'No description available.'}</p>
                 
                 <div class="tree-card-details">
                     <div class="tree-detail-row">
                         <span class="tree-detail-label">Size:</span>
-                        <span class="tree-detail-value">${tree.size}</span>
+                        <span class="tree-detail-value">${tree.size || 'Not specified'}</span>
                     </div>
                     <div class="tree-detail-row">
                         <span class="tree-detail-label">SKU:</span>
-                        <span class="tree-detail-value tree-sku">${tree.sku}</span>
+                        <span class="tree-detail-value tree-sku">${tree.sku || 'N/A'}</span>
                     </div>
                     <div class="tree-detail-row">
                         <span class="tree-detail-label">Price:</span>
-                        <span class="tree-detail-value tree-price">$${tree.price}</span>
+                        <span class="tree-detail-value tree-price">$${tree.price || 0}</span>
                     </div>
                 </div>
                 
@@ -377,7 +420,7 @@ function createTreeCardHTML(tree) {
                     <button class="btn btn-primary btn-small tree-details-btn">
                         View Details
                     </button>
-                    <a href="${tree.iNaturalistUrl}" 
+                    <a href="${tree.iNaturalistUrl || '#'}" 
                        target="_blank" 
                        rel="noopener noreferrer" 
                        class="btn btn-outline btn-small">
@@ -408,11 +451,23 @@ function addTreeCardListeners() {
  * Show tree details in modal
  */
 function showTreeDetails(treeId) {
-    // Call server-side function to get tree details
-    google.script.run
-        .withSuccessHandler(displayTreeModal)
-        .withFailureHandler(handleError)
-        .getTreeById(treeId);
+    // Check if we're running locally
+    if (typeof google === 'undefined' || !google.script) {
+        // Running locally - use mock data
+        console.log('Running locally - using mock data for tree details');
+        const tree = appData.trees.find(t => t.id === treeId);
+        if (tree) {
+            displayTreeModal({ success: true, data: tree });
+        } else {
+            handleError('Tree not found');
+        }
+    } else {
+        // Call server-side function to get tree details
+        google.script.run
+            .withSuccessHandler(displayTreeModal)
+            .withFailureHandler(handleError)
+            .getTreeById(treeId);
+    }
 }
 
 /**
@@ -572,15 +627,22 @@ function debounce(func, wait) {
  * Log user actions for analytics
  */
 function logUserAction(action, data) {
-    google.script.run
-        .withFailureHandler((error) => console.warn('Analytics logging failed:', error))
-        .logAction(action, data);
+    // Only log to server in production
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+            .withFailureHandler((error) => console.warn('Analytics logging failed:', error))
+            .logAction(action, data);
+    } else {
+        // Local logging for development
+        console.log('User action (local):', action, data);
+    }
 }
 
 // Export functions for use in other scripts
 window.UIManager = {
     initializeUI,
     displayTrees,
+    displayTreeCards,
     populateCategoryFilter,
     updatePriceRange,
     handleError,
