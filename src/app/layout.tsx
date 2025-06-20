@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   description: "Professional tree inventory and client request management platform for The Greentree Co.",
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,11 +37,11 @@ export default function RootLayout({
       >
         <Navigation />
         <main>{children}</main>
-        <footer className="bg-primary text-primary-foreground py-6 mt-auto">
+        <footer className="bg-primary text-primary-foreground py-4 sm:py-6 mt-auto">
           <div className="container mx-auto px-4">
             <div className="text-center space-y-2">
-              <h3 className="font-semibold text-lg">Professional Tree Services</h3>
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-sm">
+              <h3 className="font-semibold text-base sm:text-lg">Professional Tree Services</h3>
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
                   <span>📞</span>
                   <span>(555) 123-TREE</span>

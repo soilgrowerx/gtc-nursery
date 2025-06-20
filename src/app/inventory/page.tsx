@@ -301,23 +301,23 @@ export default function InventoryPage() {
       </div>
 
       {/* Search and Filter Controls */}
-      <div className="bg-card rounded-lg border p-6 mb-8">
+      <div className="bg-card rounded-lg border p-4 sm:p-6 mb-6 sm:mb-8">
         {/* Basic Filters Row */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-4">
           {/* Enhanced Search */}
-          <div className="relative md:col-span-2">
+          <div className="relative sm:col-span-2 lg:col-span-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by name, category, or SKU..."
               value={filters.searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-12 sm:h-10 text-base sm:text-sm"
             />
           </div>
 
           {/* Category Filter */}
           <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
-            <SelectTrigger>
+            <SelectTrigger className="h-12 sm:h-10">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -331,35 +331,40 @@ export default function InventoryPage() {
           </Select>
 
           {/* Advanced Filters Toggle */}
-          <Collapsible open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="outline" className="w-full">
-                <Filter className="mr-2 h-4 w-4" />
-                Advanced
-                {isAdvancedFiltersOpen ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
-              </Button>
-            </CollapsibleTrigger>
-          </Collapsible>
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Collapsible open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="w-full h-12 sm:h-10">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Advanced</span>
+                  <span className="sm:hidden">Filters</span>
+                  {isAdvancedFiltersOpen ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+            </Collapsible>
+          </div>
 
           {/* Export Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
             <Button
               variant="outline"
               size="sm"
               onClick={exportToCSV}
-              className="flex-1"
+              className="flex-1 h-12 sm:h-10"
             >
               <Download className="mr-1 h-3 w-3" />
-              CSV
+              <span className="hidden sm:inline">CSV</span>
+              <span className="sm:hidden">Export</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={openPrintView}
-              className="flex-1"
+              className="flex-1 h-12 sm:h-10"
             >
               <Printer className="mr-1 h-3 w-3" />
-              Print
+              <span className="hidden sm:inline">Print</span>
+              <span className="sm:hidden">Print</span>
             </Button>
           </div>
         </div>
@@ -368,7 +373,7 @@ export default function InventoryPage() {
         <Collapsible open={isAdvancedFiltersOpen} onOpenChange={setIsAdvancedFiltersOpen}>
           <CollapsibleContent className="space-y-4">
             <Separator />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Size Filter */}
               <div className="space-y-2">
                 <Label>Tree Size</Label>
@@ -426,9 +431,9 @@ export default function InventoryPage() {
         </Collapsible>
 
         {/* Sort Options and Results */}
-        <div className="flex flex-wrap gap-2 items-center justify-between mt-4">
-          <div className="flex gap-2 flex-wrap">
-            <Label className="text-sm text-muted-foreground self-center">Sort by:</Label>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-2 items-start sm:items-center justify-between mt-4">
+          <div className="flex gap-2 flex-wrap order-2 sm:order-1">
+            <Label className="text-sm text-muted-foreground self-center hidden sm:inline">Sort by:</Label>
             <Button
               variant={filters.sortBy === 'name' ? 'default' : 'outline'}
               size="sm"
@@ -471,15 +476,15 @@ export default function InventoryPage() {
             </Button>
           </div>
           
-          <div className="flex items-center gap-4">
-            <Badge variant="secondary">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 order-1 sm:order-2 w-full sm:w-auto">
+            <Badge variant="secondary" className="text-xs sm:text-sm">
               {filteredAndSortedTrees.length} result{filteredAndSortedTrees.length !== 1 ? 's' : ''}
               {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
             </Badge>
             {(filters.searchTerm || filters.category || filters.sizeFilter || 
               filters.priceRange.min > priceRange.min || filters.priceRange.max < priceRange.max || 
               filters.availabilityFilter !== 'all') && (
-              <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-8 px-2 text-xs">
                 Clear Filters
               </Button>
             )}
@@ -488,7 +493,7 @@ export default function InventoryPage() {
       </div>
 
       {/* Tree Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {isLoading ? (
           Array.from({ length: itemsPerPage }).map((_, i) => (
             <TreeCardSkeleton key={i} />
@@ -496,15 +501,15 @@ export default function InventoryPage() {
         ) : (
           paginatedTrees.map((tree) => (
           <Link key={tree.id} href={`/inventory/${tree.id}`}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <div className="flex justify-between items-start mb-2">
-                <Badge variant="outline">{tree.category}</Badge>
-                <div className="flex items-center gap-2">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer touch-manipulation">
+            <CardHeader className="p-4 sm:p-6">
+              <div className="flex justify-between items-start mb-2 gap-2">
+                <Badge variant="outline" className="text-xs flex-shrink-0">{tree.category}</Badge>
+                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="p-1 h-8 w-8"
+                    className="p-1 h-8 w-8 touch-manipulation"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -515,38 +520,39 @@ export default function InventoryPage() {
                       className={`h-4 w-4 ${isInWishlist(tree.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
                     />
                   </Button>
-                  <Badge variant={tree.quantityInStock > 0 ? 'default' : 'destructive'}>
-                    {tree.quantityInStock > 0 ? `${tree.quantityInStock} in stock` : 'Out of stock'}
+                  <Badge variant={tree.quantityInStock > 0 ? 'default' : 'destructive'} className="text-xs">
+                    <span className="hidden sm:inline">{tree.quantityInStock > 0 ? `${tree.quantityInStock} in stock` : 'Out of stock'}</span>
+                    <span className="sm:hidden">{tree.quantityInStock > 0 ? `${tree.quantityInStock}` : 'Out'}</span>
                   </Badge>
                 </div>
               </div>
-              <CardTitle className="text-lg">{tree.commonName}</CardTitle>
-              <CardDescription className="italic">{tree.botanicalName}</CardDescription>
+              <CardTitle className="text-base sm:text-lg leading-tight">{tree.commonName}</CardTitle>
+              <CardDescription className="italic text-sm">{tree.botanicalName}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <p className="text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-2 sm:line-clamp-3">
                 {tree.description}
               </p>
               
-              <div className="space-y-2 mb-4 text-sm">
+              <div className="space-y-2 mb-3 sm:mb-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Size:</span>
-                  <span>{tree.size}</span>
+                  <span className="text-right flex-1 ml-2 truncate">{tree.size}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">SKU:</span>
-                  <span className="font-mono text-xs">{tree.sku}</span>
+                  <span className="font-mono text-xs text-right">{tree.sku}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Price:</span>
-                  <span className="text-lg font-bold text-primary">${tree.price}</span>
+                  <span className="text-lg sm:text-xl font-bold text-primary">${tree.price}</span>
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   size="sm" 
-                  className="flex-1"
+                  className="flex-1 h-10 touch-manipulation"
                   onClick={(e) => e.stopPropagation()}
                 >
                   View Details
@@ -555,16 +561,18 @@ export default function InventoryPage() {
                   variant="outline" 
                   size="sm" 
                   asChild
+                  className="h-10 touch-manipulation"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <a 
                     href={tree.iNaturalistUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1"
+                    className="flex items-center justify-center gap-1"
                   >
                     <ExternalLink className="h-3 w-3" />
-                    iNaturalist
+                    <span className="hidden sm:inline">iNaturalist</span>
+                    <span className="sm:hidden">Info</span>
                   </a>
                 </Button>
               </div>
@@ -577,18 +585,19 @@ export default function InventoryPage() {
 
       {/* Pagination */}
       {totalPages > 1 && !isLoading && (
-        <div className="flex items-center justify-center space-x-2 mt-8">
+        <div className="flex items-center justify-center space-x-2 mt-6 sm:mt-8 px-4">
           <Button
             variant="outline"
             size="sm"
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
+            className="h-10 px-3 touch-manipulation"
           >
             <ChevronLeft className="h-4 w-4" />
-            Previous
+            <span className="hidden sm:inline">Previous</span>
           </Button>
           
-          <div className="flex space-x-1">
+          <div className="flex space-x-1 overflow-x-auto">
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum;
               if (totalPages <= 5) {
@@ -607,7 +616,7 @@ export default function InventoryPage() {
                   variant={currentPage === pageNum ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => goToPage(pageNum)}
-                  className="w-10"
+                  className="w-10 h-10 touch-manipulation flex-shrink-0"
                 >
                   {pageNum}
                 </Button>
@@ -620,8 +629,9 @@ export default function InventoryPage() {
             size="sm"
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage === totalPages}
+            className="h-10 px-3 touch-manipulation"
           >
-            Next
+            <span className="hidden sm:inline">Next</span>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
