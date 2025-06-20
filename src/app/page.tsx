@@ -112,6 +112,34 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Professional Credentials Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h3 className="text-2xl font-semibold text-foreground mb-8">
+              Professional Credentials
+            </h3>
+            <div className="flex justify-center items-center">
+              <div className="text-center">
+                <div className="bg-white rounded-lg p-4 shadow-md inline-block mb-4">
+                  <img 
+                    src="/certified-arborist-isa-logo.png" 
+                    alt="ISA Certified Arborist" 
+                    className="w-24 h-24 object-contain" 
+                  />
+                </div>
+                <p className="text-lg font-medium text-foreground">
+                  ISA Certified Arborist
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Certified by the International Society of Arboriculture
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
