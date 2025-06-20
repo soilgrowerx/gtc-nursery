@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ClientRequest, Tree } from '@/types/tree';
-import { Send, Check, Clock, Eye } from 'lucide-react';
+import { Send, Check, Clock, Eye, Download } from 'lucide-react';
 import treesData from '../../../data/trees.json';
 
 const trees: Tree[] = treesData as Tree[];
@@ -140,6 +140,37 @@ function RequestsPageContent() {
     }
   };
 
+  const exportRequestsToCSV = () => {
+    const csvData = requests.map(request => ({
+      'Request ID': request.id,
+      'Name': request.name,
+      'Email': request.email,
+      'Phone': request.phone,
+      'Message': request.message,
+      'Requested Trees': request.requestedTrees.join('; '),
+      'Status': request.status,
+      'Created Date': new Date(request.createdAt).toLocaleDateString(),
+      'Created Time': new Date(request.createdAt).toLocaleTimeString()
+    }));
+    
+    const csv = [
+      Object.keys(csvData[0]).join(','),
+      ...csvData.map(row => Object.values(row).map(value => 
+        typeof value === 'string' && (value.includes(',') || value.includes(';')) ? `"${value}"` : value
+      ).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `client_requests_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
@@ -260,7 +291,15 @@ function RequestsPageContent() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Recent Requests</h2>
-              <Badge variant="outline">{requests.length} total</Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">{requests.length} total</Badge>
+                {requests.length > 0 && (
+                  <Button variant="outline" size="sm" onClick={exportRequestsToCSV}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export CSV
+                  </Button>
+                )}
+              </div>
             </div>
             
             {requests.map((request) => (

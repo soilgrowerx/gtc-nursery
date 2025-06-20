@@ -18,7 +18,13 @@ export interface Tree {
 export interface TreeFilter {
   searchTerm: string;
   category: string;
-  sortBy: 'name' | 'price' | 'availability';
+  sizeFilter: string;
+  priceRange: {
+    min: number;
+    max: number;
+  };
+  availabilityFilter: 'all' | 'inStock' | 'lowStock' | 'outOfStock';
+  sortBy: 'name' | 'price' | 'availability' | 'size';
   sortOrder: 'asc' | 'desc';
 }
 
