@@ -60,3 +60,26 @@ Building an inventory management platform for Greentree Co. with:
     ]
 }
 ```
+
+### Version 0.1.2 - Real Branding Integration
+```json
+{
+    "version": "0.1.2",
+    "git_commit_hash": "8f0152b",
+    "is_successfully_deployed": true,
+    "functionality_changes": [
+        {
+            "description": "Integrated real GTC logo from uploaded assets - replaced generic tree icon with actual company branding"
+        },
+        {
+            "description": "Updated Navigation component to use Next.js Image component for better performance"
+        },
+        {
+            "description": "Added proper accessibility attributes and object-contain styling for logo display"
+        },
+        {
+            "description": "Successfully deployed to Fly.io with improved branding consistency"
+        }
+    ]
+}
+```
