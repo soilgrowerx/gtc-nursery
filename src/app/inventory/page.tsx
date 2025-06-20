@@ -11,7 +11,9 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart, AlertTriangle, DollarSign, Package, X, CheckSquare, Square, ShoppingCart, RefreshCw, Users } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart, AlertTriangle, DollarSign, Package, X, CheckSquare, Square, ShoppingCart, RefreshCw, Users, TreePine, Droplets, Sun, Info, Quote, Leaf, Star, MapPin } from 'lucide-react';
 import { Tree, TreeFilter } from '@/types/tree';
 import { useWishlist } from '@/hooks/use-wishlist';
 import treesData from '../../../data/trees.json';
@@ -49,6 +51,8 @@ export default function InventoryPage() {
   const [activeQuickFilter, setActiveQuickFilter] = useState<'lowStock' | 'highValue' | 'outOfStock' | null>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [reorderItems, setReorderItems] = useState<Set<string>>(new Set());
+  const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const itemsPerPage = 12;
 
   // Simulate loading when filters change
@@ -340,6 +344,24 @@ export default function InventoryPage() {
 
   const clearSelection = () => {
     setSelectedItems(new Set());
+  };
+
+  // Modal Functions
+  const openTreeModal = (tree: Tree) => {
+    setSelectedTree(tree);
+    setIsModalOpen(true);
+  };
+
+  const closeTreeModal = () => {
+    setIsModalOpen(false);
+    setSelectedTree(null);
+  };
+
+  const handleRequestQuote = () => {
+    if (selectedTree) {
+      alert(`Quote requested for ${selectedTree.commonName}. We'll contact you within 24 hours!`);
+      closeTreeModal();
+    }
   };
 
   const TreeCardSkeleton = () => (
@@ -790,7 +812,7 @@ export default function InventoryPage() {
                 </div>
               )}
 
-            <Link href={`/inventory/${tree.id}`}>
+            <div onClick={() => openTreeModal(tree)}>
             <CardHeader className="p-4 sm:p-6 pt-8">
               <div className="flex justify-between items-start mb-2 gap-2">
                 <Badge variant="outline" className="text-xs flex-shrink-0">{tree.category}</Badge>
@@ -842,31 +864,29 @@ export default function InventoryPage() {
                 <Button 
                   size="sm" 
                   className="flex-1 h-10 touch-manipulation"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openTreeModal(tree);
+                  }}
                 >
                   View Details
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  asChild
                   className="h-10 touch-manipulation"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(tree.iNaturalistUrl, '_blank');
+                  }}
                 >
-                  <a 
-                    href={tree.iNaturalistUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1"
-                  >
-                    <ExternalLink className="h-3 w-3" />
-                    <span className="hidden sm:inline">iNaturalist</span>
-                    <span className="sm:hidden">Info</span>
-                  </a>
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  <span className="hidden sm:inline">iNaturalist</span>
+                  <span className="sm:hidden">Info</span>
                 </Button>
               </div>
             </CardContent>
-            </Link>
+            </div>
             </Card>
           </div>
           ))
@@ -937,6 +957,229 @@ export default function InventoryPage() {
           </Button>
         </div>
       )}
+
+      {/* Tree Details Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedTree && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-3 text-xl">
+                  <TreePine className="h-6 w-6 text-green-600" />
+                  {selectedTree.commonName}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                {/* Tree Image Section */}
+                <div className="space-y-4">
+                  <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded-lg border-2 border-green-300 flex items-center justify-center">
+                    <div className="text-center p-6">
+                      <TreePine className="h-24 w-24 text-green-600 mx-auto mb-4" />
+                      <p className="text-green-700 font-medium">Professional Tree Photo</p>
+                      <p className="text-green-600 text-sm">Coming Soon</p>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Info Cards */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <Card className="p-3">
+                      <div className="flex items-center gap-2">
+                        <Package className="h-4 w-4 text-blue-600" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Stock</p>
+                          <p className="font-semibold">{selectedTree.quantityInStock} units</p>
+                        </div>
+                      </div>
+                    </Card>
+                    <Card className="p-3">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-green-600" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Price</p>
+                          <p className="font-semibold">${selectedTree.price}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* Tree Information */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Tree Information</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="text-muted-foreground">Botanical Name:</span>
+                        <span className="font-medium italic">{selectedTree.botanicalName}</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="text-muted-foreground">Category:</span>
+                        <Badge variant="outline">{selectedTree.category}</Badge>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="text-muted-foreground">Size:</span>
+                        <span className="font-medium">{selectedTree.size}</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="text-muted-foreground">SKU:</span>
+                        <span className="font-mono text-sm">{selectedTree.sku}</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="text-muted-foreground">Availability:</span>
+                        <Badge variant={selectedTree.quantityInStock > 0 ? 'default' : 'destructive'}>
+                          {selectedTree.quantityInStock > 0 ? 'In Stock' : 'Out of Stock'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <h4 className="font-medium mb-2">Description</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {selectedTree.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabbed Content */}
+              <Tabs defaultValue="care" className="mt-6">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="care" className="flex items-center gap-2">
+                    <Droplets className="h-4 w-4" />
+                    Care Instructions
+                  </TabsTrigger>
+                  <TabsTrigger value="companions" className="flex items-center gap-2">
+                    <Leaf className="h-4 w-4" />
+                    Companion Plants
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="care" className="mt-4 space-y-4">
+                  <Card className="p-4">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Sun className="h-4 w-4 text-yellow-600" />
+                      Planting & Care Tips
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600">•</span>
+                          <span>Plant in well-draining soil with good organic content</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600">•</span>
+                          <span>Water deeply but infrequently once established</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-green-600">•</span>
+                          <span>Provide adequate spacing for mature size</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2">
+                          <span className="text-blue-600">•</span>
+                          <span>Apply mulch around base to retain moisture</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-blue-600">•</span>
+                          <span>Prune during dormant season if needed</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-blue-600">•</span>
+                          <span>Monitor for pests and diseases regularly</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="p-4">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-red-600" />
+                      Climate & Location
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                      <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                        <Sun className="h-6 w-6 text-yellow-600 mx-auto mb-2" />
+                        <p className="font-medium">Sun Requirements</p>
+                        <p className="text-xs text-muted-foreground">Full to Partial Sun</p>
+                      </div>
+                      <div className="text-center p-3 bg-blue-50 rounded-lg">
+                        <Droplets className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                        <p className="font-medium">Water Needs</p>
+                        <p className="text-xs text-muted-foreground">Moderate</p>
+                      </div>
+                      <div className="text-center p-3 bg-green-50 rounded-lg">
+                        <TreePine className="h-6 w-6 text-green-600 mx-auto mb-2" />
+                        <p className="font-medium">Hardiness</p>
+                        <p className="text-xs text-muted-foreground">Zone 8-10</p>
+                      </div>
+                    </div>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="companions" className="mt-4">
+                  <Card className="p-4">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Leaf className="h-4 w-4 text-green-600" />
+                      Recommended Companion Plants
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {[
+                        { name: 'Native Grasses', reason: 'Complement root systems' },
+                        { name: 'Wildflowers', reason: 'Attract beneficial insects' },
+                        { name: 'Shrub Understory', reason: 'Provide habitat layers' },
+                        { name: 'Ground Cover', reason: 'Prevent soil erosion' },
+                        { name: 'Perennial Herbs', reason: 'Natural pest deterrent' },
+                        { name: 'Flowering Vines', reason: 'Maximize vertical space' }
+                      ].map((companion, index) => (
+                        <div key={index} className="p-3 border rounded-lg hover:bg-green-50 transition-colors">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Star className="h-3 w-3 text-green-600" />
+                            <span className="font-medium text-sm">{companion.name}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{companion.reason}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-4 border-t">
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={handleRequestQuote}
+                >
+                  <Quote className="h-4 w-4 mr-2" />
+                  Request Quote
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    if (selectedTree) {
+                      toggleWishlist(selectedTree.id);
+                    }
+                  }}
+                >
+                  <Heart className={`h-4 w-4 mr-2 ${selectedTree && isInWishlist(selectedTree.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                  {selectedTree && isInWishlist(selectedTree.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={closeTreeModal}
+                >
+                  Close
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
