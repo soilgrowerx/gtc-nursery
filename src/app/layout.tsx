@@ -31,6 +31,27 @@ export default function RootLayout({
       >
         <Navigation />
         <main>{children}</main>
+        <footer className="bg-primary text-primary-foreground py-6 mt-auto">
+          <div className="container mx-auto px-4">
+            <div className="text-center space-y-2">
+              <h3 className="font-semibold text-lg">Professional Tree Services</h3>
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <span>📞</span>
+                  <span>(555) 123-TREE</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>✉️</span>
+                  <span>info@greentreeco.com</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>📍</span>
+                  <span>Your City, State</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer>
         <Toaster />
       </body>
     </html>
