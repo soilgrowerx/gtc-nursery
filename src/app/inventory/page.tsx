@@ -11,8 +11,9 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Tree, TreeFilter } from '@/types/tree';
+import { useWishlist } from '@/hooks/use-wishlist';
 import treesData from '../../../data/trees.json';
 
 const trees: Tree[] = treesData as Tree[];
@@ -30,6 +31,8 @@ const priceRange = {
 };
 
 export default function InventoryPage() {
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  
   const [filters, setFilters] = useState<TreeFilter>({
     searchTerm: '',
     category: '',
@@ -497,9 +500,25 @@ export default function InventoryPage() {
             <CardHeader>
               <div className="flex justify-between items-start mb-2">
                 <Badge variant="outline">{tree.category}</Badge>
-                <Badge variant={tree.quantityInStock > 0 ? 'default' : 'destructive'}>
-                  {tree.quantityInStock > 0 ? `${tree.quantityInStock} in stock` : 'Out of stock'}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-1 h-8 w-8"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleWishlist(tree.id);
+                    }}
+                  >
+                    <Heart 
+                      className={`h-4 w-4 ${isInWishlist(tree.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                    />
+                  </Button>
+                  <Badge variant={tree.quantityInStock > 0 ? 'default' : 'destructive'}>
+                    {tree.quantityInStock > 0 ? `${tree.quantityInStock} in stock` : 'Out of stock'}
+                  </Badge>
+                </div>
               </div>
               <CardTitle className="text-lg">{tree.commonName}</CardTitle>
               <CardDescription className="italic">{tree.botanicalName}</CardDescription>

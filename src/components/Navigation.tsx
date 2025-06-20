@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Trees, Home, Users, FileText } from 'lucide-react';
+import { Trees, Home, Users, FileText, Heart } from 'lucide-react';
 import Image from 'next/image';
+import { useWishlist } from '@/hooks/use-wishlist';
+import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -14,6 +16,7 @@ const navItems = [
 
 export function Navigation() {
   const pathname = usePathname();
+  const { wishlistCount } = useWishlist();
 
   return (
     <nav className="border-b border-border bg-card">
@@ -55,6 +58,28 @@ export function Navigation() {
                 </Link>
               );
             })}
+            
+            {/* Wishlist Link */}
+            <Link
+              href="/wishlist"
+              className={cn(
+                'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors relative',
+                pathname === '/wishlist'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+              )}
+            >
+              <Heart className={`h-4 w-4 ${pathname === '/wishlist' ? '' : 'hover:text-red-400'}`} />
+              <span>Wishlist</span>
+              {wishlistCount > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+                >
+                  {wishlistCount}
+                </Badge>
+              )}
+            </Link>
           </div>
         </div>
       </div>
