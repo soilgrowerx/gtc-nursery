@@ -1,0 +1,519 @@
+<script>
+/**
+ * Application Logic for Tree Inventory App
+ * Handles data processing, filtering, sorting, and business logic
+ */
+
+// Global app state
+let appData = {
+    trees: [],
+    categories: [],
+    priceRange: { min: 0, max: 200 },
+    isLoaded: false
+};
+
+/**
+ * Main application initialization function
+ */
+function initializeApp() {
+    console.log('Starting Tree Inventory Application...');
+    
+    // Initialize UI first
+    initializeUI();
+    
+    // Load inventory data
+    loadInventoryData();
+}
+
+/**
+ * Load inventory data from server
+ */
+function loadInventoryData() {
+    console.log('Loading inventory data...');
+    
+    UIManager.showLoadingState();
+    
+    // Call server-side function to get inventory
+    google.script.run
+        .withSuccessHandler(handleInventoryLoaded)
+        .withFailureHandler(handleInventoryError)
+        .getInventory();
+}
+
+/**
+ * Handle successful inventory data loading
+ */
+function handleInventoryLoaded(response) {
+    console.log('Inventory data loaded successfully:', response);
+    
+    if (!response.success) {
+        handleInventoryError(response.error);
+        return;
+    }
+    
+    // Store data in global state
+    appData.trees = response.data;
+    appData.categories = response.categories;
+    appData.priceRange = response.priceRange;
+    appData.isLoaded = true;
+    
+    // Update UI with loaded data
+    UIManager.populateCategoryFilter(appData.categories);
+    UIManager.updatePriceRange(appData.priceRange);
+    
+    // Display all trees initially
+    displayAllTrees();
+    
+    console.log(`Loaded ${appData.trees.length} trees in ${appData.categories.length} categories`);
+}
+
+/**
+ * Handle inventory loading errors
+ */
+function handleInventoryError(error) {
+    console.error('Failed to load inventory:', error);
+    UIManager.handleError('Failed to load inventory data. Please refresh the page and try again.');
+}
+
+/**
+ * Display all trees (initial load)
+ */
+function displayAllTrees() {
+    const sortedTrees = sortTrees([...appData.trees], 'name', 'asc');
+    UIManager.displayTrees(sortedTrees);
+    
+    // Log initial load
+    logUserAction('inventory_loaded', {
+        totalTrees: appData.trees.length,
+        categories: appData.categories.length
+    });
+}
+
+/**
+ * Filter and display trees based on current criteria
+ */
+function filterAndDisplayTrees(searchTerm, category, minPrice, maxPrice, availabilityFilter, sortBy, sortOrder) {
+    console.log('Applying filters:', {
+        searchTerm,
+        category,
+        minPrice,
+        maxPrice,
+        availabilityFilter,
+        sortBy,
+        sortOrder
+    });
+    
+    if (!appData.isLoaded) {
+        console.warn('Data not loaded yet, skipping filter');
+        return;
+    }
+    
+    // Apply filters
+    let filteredTrees = filterTrees(
+        appData.trees,
+        searchTerm,
+        category,
+        minPrice,
+        maxPrice,
+        availabilityFilter
+    );
+    
+    // Apply sorting
+    filteredTrees = sortTrees(filteredTrees, sortBy, sortOrder);
+    
+    // Display results
+    UIManager.displayTrees(filteredTrees);
+    
+    // Log filter action
+    logUserAction('trees_filtered', {
+        searchTerm,
+        category,
+        priceRange: [minPrice, maxPrice],
+        availabilityFilter,
+        sortBy,
+        sortOrder,
+        resultCount: filteredTrees.length
+    });
+}
+
+/**
+ * Filter trees based on criteria
+ */
+function filterTrees(trees, searchTerm, category, minPrice, maxPrice, availabilityFilter) {
+    return trees.filter(tree => {
+        // Search term filter - search across multiple fields
+        const matchesSearch = !searchTerm || 
+            tree.commonName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tree.botanicalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tree.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tree.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tree.description.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        // Category filter
+        const matchesCategory = !category || tree.category === category;
+        
+        // Price range filter  
+        const matchesPrice = tree.price >= minPrice && tree.price <= maxPrice;
+        
+        // Availability filter
+        const matchesAvailability = filterByAvailability(tree, availabilityFilter);
+        
+        return matchesSearch && matchesCategory && matchesPrice && matchesAvailability;
+    });
+}
+
+/**
+ * Filter trees by availability status
+ */
+function filterByAvailability(tree, availabilityFilter) {
+    switch (availabilityFilter) {
+        case 'inStock':
+            return tree.quantityInStock > 5;
+        case 'lowStock':
+            return tree.quantityInStock > 0 && tree.quantityInStock <= 5;
+        case 'outOfStock':
+            return tree.quantityInStock === 0;
+        case 'all':
+        default:
+            return true;
+    }
+}
+
+/**
+ * Sort trees based on criteria
+ */
+function sortTrees(trees, sortBy, sortOrder) {
+    const sortedTrees = [...trees];
+    
+    sortedTrees.sort((a, b) => {
+        let comparison = 0;
+        
+        switch (sortBy) {
+            case 'name':
+                comparison = a.commonName.localeCompare(b.commonName);
+                break;
+            case 'price':
+                comparison = a.price - b.price;
+                break;
+            case 'stock':
+                comparison = a.quantityInStock - b.quantityInStock;
+                break;
+            case 'category':
+                comparison = a.category.localeCompare(b.category);
+                // Secondary sort by name
+                if (comparison === 0) {
+                    comparison = a.commonName.localeCompare(b.commonName);
+                }
+                break;
+            default:
+                comparison = a.commonName.localeCompare(b.commonName);
+        }
+        
+        return sortOrder === 'desc' ? -comparison : comparison;
+    });
+    
+    return sortedTrees;
+}
+
+/**
+ * Get tree statistics for dashboard/summary
+ */
+function getTreeStatistics() {
+    if (!appData.isLoaded) {
+        return null;
+    }
+    
+    const stats = {
+        total: appData.trees.length,
+        inStock: appData.trees.filter(t => t.quantityInStock > 0).length,
+        outOfStock: appData.trees.filter(t => t.quantityInStock === 0).length,
+        lowStock: appData.trees.filter(t => t.quantityInStock > 0 && t.quantityInStock <= 5).length,
+        categories: appData.categories.length,
+        averagePrice: Math.round(appData.trees.reduce((sum, t) => sum + t.price, 0) / appData.trees.length),
+        priceRange: appData.priceRange,
+        totalValue: appData.trees.reduce((sum, t) => sum + (t.price * t.quantityInStock), 0),
+        topCategories: getTopCategories(),
+        recentlyUpdated: new Date().toLocaleDateString()
+    };
+    
+    return stats;
+}
+
+/**
+ * Get top categories by tree count
+ */
+function getTopCategories() {
+    const categoryCounts = {};
+    
+    appData.trees.forEach(tree => {
+        categoryCounts[tree.category] = (categoryCounts[tree.category] || 0) + 1;
+    });
+    
+    return Object.entries(categoryCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 3)
+        .map(([category, count]) => ({ category, count }));
+}
+
+/**
+ * Search for trees with advanced criteria
+ */
+function performAdvancedSearch(criteria) {
+    console.log('Performing advanced search:', criteria);
+    
+    if (!appData.isLoaded) {
+        return [];
+    }
+    
+    return appData.trees.filter(tree => {
+        // All previous filters
+        let matches = true;
+        
+        // Botanical name search
+        if (criteria.botanicalName) {
+            matches = matches && tree.botanicalName.toLowerCase().includes(criteria.botanicalName.toLowerCase());
+        }
+        
+        // SKU search
+        if (criteria.sku) {
+            matches = matches && tree.sku.toLowerCase().includes(criteria.sku.toLowerCase());
+        }
+        
+        // Size filter
+        if (criteria.size) {
+            matches = matches && tree.size.toLowerCase().includes(criteria.size.toLowerCase());
+        }
+        
+        // Stock range
+        if (criteria.minStock !== undefined) {
+            matches = matches && tree.quantityInStock >= criteria.minStock;
+        }
+        if (criteria.maxStock !== undefined) {
+            matches = matches && tree.quantityInStock <= criteria.maxStock;
+        }
+        
+        return matches;
+    });
+}
+
+/**
+ * Export filtered trees to CSV format
+ */
+function exportToCSV(trees, filename) {
+    if (!trees || trees.length === 0) {
+        UIManager.handleError('No trees to export');
+        return;
+    }
+    
+    const csvHeaders = [
+        'Common Name',
+        'Botanical Name',
+        'Category',
+        'Size',
+        'Price',
+        'Quantity in Stock',
+        'SKU',
+        'Availability Status'
+    ];
+    
+    const csvRows = trees.map(tree => [
+        tree.commonName,
+        tree.botanicalName,
+        tree.category,
+        tree.size,
+        tree.price,
+        tree.quantityInStock,
+        tree.sku,
+        tree.quantityInStock > 0 ? 'In Stock' : 'Out of Stock'
+    ]);
+    
+    const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => 
+            row.map(cell => 
+                typeof cell === 'string' && cell.includes(',') 
+                    ? `"${cell.replace(/"/g, '""')}"` 
+                    : cell
+            ).join(',')
+        )
+    ].join('\n');
+    
+    // Create and download the CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename || `tree_inventory_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Log export action
+    logUserAction('inventory_exported', {
+        format: 'csv',
+        treeCount: trees.length,
+        filename: filename
+    });
+}
+
+/**
+ * Get tree recommendations based on a tree ID
+ */
+function getTreeRecommendations(treeId, limit = 3) {
+    const targetTree = appData.trees.find(t => t.id === treeId);
+    if (!targetTree) return [];
+    
+    // Simple recommendation algorithm based on category and price similarity
+    const recommendations = appData.trees
+        .filter(tree => tree.id !== treeId && tree.quantityInStock > 0)
+        .map(tree => {
+            let score = 0;
+            
+            // Same category gets higher score
+            if (tree.category === targetTree.category) {
+                score += 50;
+            }
+            
+            // Similar price range gets points
+            const priceDiff = Math.abs(tree.price - targetTree.price);
+            const maxPrice = Math.max(tree.price, targetTree.price);
+            const priceSimiliarity = 1 - (priceDiff / maxPrice);
+            score += priceSimiliarity * 30;
+            
+            // Size similarity
+            if (tree.size === targetTree.size) {
+                score += 20;
+            }
+            
+            return { tree, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(item => item.tree);
+    
+    return recommendations;
+}
+
+/**
+ * Validate tree data integrity
+ */
+function validateTreeData(trees) {
+    const errors = [];
+    
+    trees.forEach((tree, index) => {
+        if (!tree.id) errors.push(`Tree at index ${index} missing ID`);
+        if (!tree.commonName) errors.push(`Tree ${tree.id} missing common name`);
+        if (!tree.botanicalName) errors.push(`Tree ${tree.id} missing botanical name`);
+        if (typeof tree.price !== 'number' || tree.price < 0) errors.push(`Tree ${tree.id} has invalid price`);
+        if (typeof tree.quantityInStock !== 'number' || tree.quantityInStock < 0) errors.push(`Tree ${tree.id} has invalid stock quantity`);
+        if (!tree.sku) errors.push(`Tree ${tree.id} missing SKU`);
+        if (!tree.category) errors.push(`Tree ${tree.id} missing category`);
+    });
+    
+    if (errors.length > 0) {
+        console.warn('Tree data validation errors:', errors);
+    }
+    
+    return errors;
+}
+
+/**
+ * Log user actions for analytics
+ */
+function logUserAction(action, data) {
+    const logData = {
+        action,
+        data,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        url: window.location.href
+    };
+    
+    console.log('User action:', logData);
+    
+    // Send to server for logging (optional)
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+            .withFailureHandler((error) => console.warn('Failed to log action:', error))
+            .logAction(action, data);
+    }
+}
+
+/**
+ * Handle application errors gracefully
+ */
+function handleAppError(error, context) {
+    console.error(`Application error in ${context}:`, error);
+    
+    // Log error for debugging
+    logUserAction('error_occurred', {
+        error: error.toString(),
+        context,
+        stack: error.stack
+    });
+    
+    // Show user-friendly error message
+    UIManager.handleError(`An error occurred while ${context}. Please try again.`);
+}
+
+/**
+ * Utility function to debounce API calls
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+/**
+ * Format currency values consistently
+ */
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
+}
+
+/**
+ * Format date values consistently
+ */
+function formatDate(date) {
+    return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }).format(new Date(date));
+}
+
+// Export main functions for global access
+window.TreeInventory = {
+    initializeApp,
+    filterAndDisplayTrees,
+    getTreeStatistics,
+    performAdvancedSearch,
+    exportToCSV,
+    getTreeRecommendations,
+    formatCurrency,
+    formatDate,
+    logUserAction
+};
+
+// Expose clearAllFilters globally for HTML onclick
+window.clearAllFilters = function() {
+    UIManager.clearAllFilters();
+};
+
+console.log('Tree Inventory Logic loaded successfully');
+</script>

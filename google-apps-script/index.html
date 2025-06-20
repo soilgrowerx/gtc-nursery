@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greentree Co. - Tree Inventory</title>
+    
+    <!-- Include stylesheet -->
+    <?!= include('stylesheet'); ?>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="https://placehold.co/40x40/228B22/FFFFFF?text=GTC" alt="Greentree Co." class="nav-logo">
+                <h1 class="nav-title">Greentree Co.</h1>
+            </div>
+            <div class="nav-subtitle">
+                Native Tree Inventory
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Header Section -->
+        <div class="page-header">
+            <h1 class="page-title">Tree Inventory</h1>
+            <p class="page-subtitle">Browse our collection of premium native trees</p>
+        </div>
+
+        <!-- Search and Filter Controls -->
+        <div class="filter-panel">
+            <div class="filter-row">
+                <!-- Search Input -->
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-input" 
+                        placeholder="Search by name, category, or SKU..."
+                    >
+                    <span class="search-icon">🔍</span>
+                </div>
+
+                <!-- Category Filter -->
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+
+                <!-- Availability Filter -->
+                <select id="availabilityFilter" class="filter-select">
+                    <option value="all">All Items</option>
+                    <option value="inStock">In Stock (5+)</option>
+                    <option value="lowStock">Low Stock (1-5)</option>
+                    <option value="outOfStock">Out of Stock</option>
+                </select>
+
+                <!-- Clear Filters Button -->
+                <button id="clearFilters" class="btn btn-secondary">
+                    Clear Filters
+                </button>
+            </div>
+
+            <!-- Price Range Filter -->
+            <div class="price-filter">
+                <label for="priceRange" class="filter-label">Price Range: $<span id="priceMin">0</span> - $<span id="priceMax">200</span></label>
+                <input type="range" id="minPriceRange" class="price-slider" min="0" max="200" value="0">
+                <input type="range" id="maxPriceRange" class="price-slider" min="0" max="200" value="200">
+            </div>
+
+            <!-- Sort Options -->
+            <div class="sort-controls">
+                <label class="sort-label">Sort by:</label>
+                <button id="sortName" class="sort-btn active" data-sort="name">Name</button>
+                <button id="sortPrice" class="sort-btn" data-sort="price">Price</button>
+                <button id="sortStock" class="sort-btn" data-sort="stock">Stock</button>
+            </div>
+
+            <!-- Results Count -->
+            <div class="results-info">
+                <span id="resultsCount" class="results-count">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading inventory...</p>
+        </div>
+
+        <!-- Tree Grid -->
+        <div id="treeGrid" class="tree-grid">
+            <!-- Trees will be populated here by JavaScript -->
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="no-results" style="display: none;">
+            <p>No trees found matching your criteria.</p>
+            <button onclick="clearAllFilters()" class="btn btn-primary">Clear All Filters</button>
+        </div>
+    </main>
+
+    <!-- Tree Detail Modal -->
+    <div id="treeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Tree Details</h2>
+                <button id="closeModal" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Tree details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Greentree Co. - Native Tree Specialists</p>
+            <div class="footer-links">
+                <img src="https://placehold.co/60x30/228B22/FFFFFF?text=ISA" alt="ISA Certified" class="footer-badge">
+            </div>
+        </div>
+    </footer>
+
+    <!-- Include JavaScript files -->
+    <?!= include('ui'); ?>
+    <?!= include('logic'); ?>
+
+    <!-- Initialize the app -->
+    <script>
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing Greentree Co. Tree Inventory App');
+            initializeApp();
+        });
+    </script>
+</body>
+</html>

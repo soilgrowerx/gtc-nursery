@@ -1,0 +1,580 @@
+<script>
+/**
+ * UI Management Functions for Tree Inventory App
+ * Handles DOM manipulation, event listeners, and user interactions
+ */
+
+// Global UI state
+let currentSort = 'name';
+let sortOrder = 'asc';
+let currentFilters = {
+    search: '',
+    category: '',
+    minPrice: 0,
+    maxPrice: 200,
+    availability: 'all'
+};
+
+/**
+ * Initialize UI components and event listeners
+ */
+function initializeUI() {
+    console.log('Initializing UI components...');
+    
+    // Set up event listeners
+    setupEventListeners();
+    
+    // Initialize price range sliders
+    initializePriceSliders();
+    
+    // Set up modal functionality
+    initializeModal();
+    
+    console.log('UI initialization complete');
+}
+
+/**
+ * Set up all event listeners for the UI
+ */
+function setupEventListeners() {
+    // Search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(handleSearchInput, 300));
+    }
+    
+    // Category filter
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', handleCategoryFilter);
+    }
+    
+    // Availability filter
+    const availabilityFilter = document.getElementById('availabilityFilter');
+    if (availabilityFilter) {
+        availabilityFilter.addEventListener('change', handleAvailabilityFilter);
+    }
+    
+    // Clear filters button
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', clearAllFilters);
+    }
+    
+    // Sort buttons
+    document.querySelectorAll('.sort-btn').forEach(button => {
+        button.addEventListener('click', handleSortClick);
+    });
+    
+    // Price range sliders
+    const minPriceRange = document.getElementById('minPriceRange');
+    const maxPriceRange = document.getElementById('maxPriceRange');
+    
+    if (minPriceRange) {
+        minPriceRange.addEventListener('input', handlePriceRangeChange);
+    }
+    if (maxPriceRange) {
+        maxPriceRange.addEventListener('input', handlePriceRangeChange);
+    }
+}
+
+/**
+ * Initialize price range sliders
+ */
+function initializePriceSliders() {
+    const minSlider = document.getElementById('minPriceRange');
+    const maxSlider = document.getElementById('maxPriceRange');
+    const minDisplay = document.getElementById('priceMin');
+    const maxDisplay = document.getElementById('priceMax');
+    
+    if (minSlider && maxSlider && minDisplay && maxDisplay) {
+        currentFilters.minPrice = parseInt(minSlider.value);
+        currentFilters.maxPrice = parseInt(maxSlider.value);
+        
+        minDisplay.textContent = currentFilters.minPrice;
+        maxDisplay.textContent = currentFilters.maxPrice;
+    }
+}
+
+/**
+ * Initialize modal functionality
+ */
+function initializeModal() {
+    const modal = document.getElementById('treeModal');
+    const closeBtn = document.getElementById('closeModal');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeTreeModal);
+    }
+    
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeTreeModal();
+            }
+        });
+    }
+    
+    // Escape key to close modal
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && modal.style.display !== 'none') {
+            closeTreeModal();
+        }
+    });
+}
+
+/**
+ * Handle search input changes
+ */
+function handleSearchInput(e) {
+    currentFilters.search = e.target.value;
+    applyFilters();
+}
+
+/**
+ * Handle category filter changes
+ */
+function handleCategoryFilter(e) {
+    currentFilters.category = e.target.value;
+    applyFilters();
+}
+
+/**
+ * Handle availability filter changes
+ */
+function handleAvailabilityFilter(e) {
+    currentFilters.availability = e.target.value;
+    applyFilters();
+}
+
+/**
+ * Handle price range changes
+ */
+function handlePriceRangeChange() {
+    const minSlider = document.getElementById('minPriceRange');
+    const maxSlider = document.getElementById('maxPriceRange');
+    const minDisplay = document.getElementById('priceMin');
+    const maxDisplay = document.getElementById('priceMax');
+    
+    let minVal = parseInt(minSlider.value);
+    let maxVal = parseInt(maxSlider.value);
+    
+    // Ensure min doesn't exceed max
+    if (minVal >= maxVal) {
+        minVal = maxVal - 1;
+        minSlider.value = minVal;
+    }
+    
+    // Ensure max doesn't go below min
+    if (maxVal <= minVal) {
+        maxVal = minVal + 1;
+        maxSlider.value = maxVal;
+    }
+    
+    currentFilters.minPrice = minVal;
+    currentFilters.maxPrice = maxVal;
+    
+    minDisplay.textContent = minVal;
+    maxDisplay.textContent = maxVal;
+    
+    applyFilters();
+}
+
+/**
+ * Handle sort button clicks
+ */
+function handleSortClick(e) {
+    const sortType = e.target.dataset.sort;
+    
+    // Toggle sort order if same button clicked
+    if (currentSort === sortType) {
+        sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSort = sortType;
+        sortOrder = 'asc';
+    }
+    
+    // Update UI to show active sort
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    e.target.classList.add('active');
+    
+    applyFilters();
+}
+
+/**
+ * Clear all filters and reset UI
+ */
+function clearAllFilters() {
+    // Reset filter values
+    currentFilters = {
+        search: '',
+        category: '',
+        minPrice: 0,
+        maxPrice: 200,
+        availability: 'all'
+    };
+    
+    // Reset sort
+    currentSort = 'name';
+    sortOrder = 'asc';
+    
+    // Reset UI elements
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const availabilityFilter = document.getElementById('availabilityFilter');
+    const minPriceRange = document.getElementById('minPriceRange');
+    const maxPriceRange = document.getElementById('maxPriceRange');
+    const priceMin = document.getElementById('priceMin');
+    const priceMax = document.getElementById('priceMax');
+    
+    if (searchInput) searchInput.value = '';
+    if (categoryFilter) categoryFilter.value = '';
+    if (availabilityFilter) availabilityFilter.value = 'all';
+    if (minPriceRange) minPriceRange.value = 0;
+    if (maxPriceRange) maxPriceRange.value = 200;
+    if (priceMin) priceMin.textContent = '0';
+    if (priceMax) priceMax.textContent = '200';
+    
+    // Reset sort buttons
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById('sortName')?.classList.add('active');
+    
+    // Reapply filters (which will show all results)
+    applyFilters();
+}
+
+/**
+ * Apply current filters and refresh the display
+ */
+function applyFilters() {
+    showLoadingState();
+    
+    // Call the logic function to filter and display trees
+    filterAndDisplayTrees(
+        currentFilters.search,
+        currentFilters.category,
+        currentFilters.minPrice,
+        currentFilters.maxPrice,
+        currentFilters.availability,
+        currentSort,
+        sortOrder
+    );
+}
+
+/**
+ * Show loading state
+ */
+function showLoadingState() {
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const treeGrid = document.getElementById('treeGrid');
+    const noResults = document.getElementById('noResults');
+    
+    if (loadingSpinner) loadingSpinner.style.display = 'block';
+    if (treeGrid) treeGrid.style.display = 'none';
+    if (noResults) noResults.style.display = 'none';
+}
+
+/**
+ * Hide loading state
+ */
+function hideLoadingState() {
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const treeGrid = document.getElementById('treeGrid');
+    
+    if (loadingSpinner) loadingSpinner.style.display = 'none';
+    if (treeGrid) treeGrid.style.display = 'grid';
+}
+
+/**
+ * Display trees in the grid
+ */
+function displayTrees(trees) {
+    hideLoadingState();
+    
+    const treeGrid = document.getElementById('treeGrid');
+    const noResults = document.getElementById('noResults');
+    const resultsCount = document.getElementById('resultsCount');
+    
+    if (!treeGrid) return;
+    
+    // Update results count
+    if (resultsCount) {
+        resultsCount.textContent = `${trees.length} result${trees.length !== 1 ? 's' : ''}`;
+    }
+    
+    if (trees.length === 0) {
+        treeGrid.style.display = 'none';
+        if (noResults) noResults.style.display = 'block';
+        return;
+    }
+    
+    // Hide no results message
+    if (noResults) noResults.style.display = 'none';
+    
+    // Generate tree cards HTML
+    const treesHTML = trees.map(tree => createTreeCardHTML(tree)).join('');
+    
+    // Update the grid
+    treeGrid.innerHTML = treesHTML;
+    treeGrid.style.display = 'grid';
+    
+    // Add click listeners to tree cards
+    addTreeCardListeners();
+}
+
+/**
+ * Create HTML for a tree card
+ */
+function createTreeCardHTML(tree) {
+    const stockBadge = tree.quantityInStock > 0 
+        ? `<span class="badge badge-stock">${tree.quantityInStock} in stock</span>`
+        : `<span class="badge badge-out-of-stock">Out of stock</span>`;
+    
+    return `
+        <div class="tree-card fade-in" data-tree-id="${tree.id}">
+            <div class="tree-card-header">
+                <div class="tree-card-badges">
+                    <span class="badge badge-category">${tree.category}</span>
+                    ${stockBadge}
+                </div>
+                <h3 class="tree-card-title">${tree.commonName}</h3>
+                <div class="tree-card-botanical">${tree.botanicalName}</div>
+            </div>
+            <div class="tree-card-body">
+                <p class="tree-card-description">${tree.description}</p>
+                
+                <div class="tree-card-details">
+                    <div class="tree-detail-row">
+                        <span class="tree-detail-label">Size:</span>
+                        <span class="tree-detail-value">${tree.size}</span>
+                    </div>
+                    <div class="tree-detail-row">
+                        <span class="tree-detail-label">SKU:</span>
+                        <span class="tree-detail-value tree-sku">${tree.sku}</span>
+                    </div>
+                    <div class="tree-detail-row">
+                        <span class="tree-detail-label">Price:</span>
+                        <span class="tree-detail-value tree-price">$${tree.price}</span>
+                    </div>
+                </div>
+                
+                <div class="tree-card-actions">
+                    <button class="btn btn-primary btn-small tree-details-btn">
+                        View Details
+                    </button>
+                    <a href="${tree.iNaturalistUrl}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="btn btn-outline btn-small">
+                        iNaturalist ↗
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Add click listeners to tree cards
+ */
+function addTreeCardListeners() {
+    // Tree card click (for details)
+    document.querySelectorAll('.tree-details-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const treeCard = e.target.closest('.tree-card');
+            const treeId = treeCard.dataset.treeId;
+            showTreeDetails(treeId);
+        });
+    });
+}
+
+/**
+ * Show tree details in modal
+ */
+function showTreeDetails(treeId) {
+    // Call server-side function to get tree details
+    google.script.run
+        .withSuccessHandler(displayTreeModal)
+        .withFailureHandler(handleError)
+        .getTreeById(treeId);
+}
+
+/**
+ * Display tree details modal
+ */
+function displayTreeModal(response) {
+    if (!response.success) {
+        handleError(response.error);
+        return;
+    }
+    
+    const tree = response.data;
+    const modal = document.getElementById('treeModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    
+    if (!modal || !modalTitle || !modalBody) return;
+    
+    modalTitle.textContent = tree.commonName;
+    
+    modalBody.innerHTML = `
+        <div class="modal-tree-details">
+            <div class="modal-tree-header">
+                <h3>${tree.commonName}</h3>
+                <p class="modal-botanical"><em>${tree.botanicalName}</em></p>
+            </div>
+            
+            <div class="modal-tree-info">
+                <div class="modal-info-grid">
+                    <div class="modal-info-item">
+                        <strong>Category:</strong> ${tree.category}
+                    </div>
+                    <div class="modal-info-item">
+                        <strong>Size:</strong> ${tree.size}
+                    </div>
+                    <div class="modal-info-item">
+                        <strong>Price:</strong> <span class="tree-price">$${tree.price}</span>
+                    </div>
+                    <div class="modal-info-item">
+                        <strong>Stock:</strong> ${tree.quantityInStock > 0 ? `${tree.quantityInStock} available` : 'Out of stock'}
+                    </div>
+                    <div class="modal-info-item">
+                        <strong>SKU:</strong> <code>${tree.sku}</code>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-description">
+                <h4>Description</h4>
+                <p>${tree.description}</p>
+            </div>
+            
+            <div class="modal-care-info">
+                <h4>Planting & Care Information</h4>
+                <p>${tree.plantingCareInfo}</p>
+            </div>
+            
+            <div class="modal-actions">
+                <a href="${tree.iNaturalistUrl}" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn btn-outline">
+                    View on iNaturalist ↗
+                </a>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+/**
+ * Close tree details modal
+ */
+function closeTreeModal() {
+    const modal = document.getElementById('treeModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+/**
+ * Populate category filter dropdown
+ */
+function populateCategoryFilter(categories) {
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (!categoryFilter) return;
+    
+    // Clear existing options (except "All Categories")
+    categoryFilter.innerHTML = '<option value="">All Categories</option>';
+    
+    // Add category options
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categoryFilter.appendChild(option);
+    });
+}
+
+/**
+ * Update price range sliders with actual price range
+ */
+function updatePriceRange(priceRange) {
+    const minSlider = document.getElementById('minPriceRange');
+    const maxSlider = document.getElementById('maxPriceRange');
+    const minDisplay = document.getElementById('priceMin');
+    const maxDisplay = document.getElementById('priceMax');
+    
+    if (minSlider && maxSlider && minDisplay && maxDisplay) {
+        minSlider.min = priceRange.min;
+        minSlider.max = priceRange.max;
+        minSlider.value = priceRange.min;
+        
+        maxSlider.min = priceRange.min;
+        maxSlider.max = priceRange.max;
+        maxSlider.value = priceRange.max;
+        
+        currentFilters.minPrice = priceRange.min;
+        currentFilters.maxPrice = priceRange.max;
+        
+        minDisplay.textContent = priceRange.min;
+        maxDisplay.textContent = priceRange.max;
+    }
+}
+
+/**
+ * Handle errors and display user-friendly messages
+ */
+function handleError(error) {
+    console.error('Application error:', error);
+    
+    const errorMessage = typeof error === 'string' ? error : 'An unexpected error occurred. Please refresh the page and try again.';
+    
+    // You could show a toast notification or modal here
+    alert(`Error: ${errorMessage}`);
+    
+    hideLoadingState();
+}
+
+/**
+ * Debounce function to limit API calls
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+/**
+ * Log user actions for analytics
+ */
+function logUserAction(action, data) {
+    google.script.run
+        .withFailureHandler((error) => console.warn('Analytics logging failed:', error))
+        .logAction(action, data);
+}
+
+// Export functions for use in other scripts
+window.UIManager = {
+    initializeUI,
+    displayTrees,
+    populateCategoryFilter,
+    updatePriceRange,
+    handleError,
+    showLoadingState,
+    hideLoadingState,
+    clearAllFilters
+};
+</script>
