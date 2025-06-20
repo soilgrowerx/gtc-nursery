@@ -83,3 +83,26 @@ Building an inventory management platform for Greentree Co. with:
     ]
 }
 ```
+
+### Version 0.1.3 - Enhanced Homepage UX
+```json
+{
+    "version": "0.1.3",
+    "git_commit_hash": "21e1ed5",
+    "is_successfully_deployed": true,
+    "functionality_changes": [
+        {
+            "description": "Added Professional Tree Services section with feature cards for Extensive Inventory, Smart Search & Filtering, and Client Request System"
+        },
+        {
+            "description": "Integrated call-to-action section with 'Ready to Start Your Project?' messaging and navigation buttons"
+        },
+        {
+            "description": "Added support for ISA Certified Arborist credentials display (logo file integrated)"
+        },
+        {
+            "description": "Enhanced homepage layout with professional styling and improved user engagement"
+        }
+    ]
+}
+```
