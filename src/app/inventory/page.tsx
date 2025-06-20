@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart, AlertTriangle, DollarSign, Package, X } from 'lucide-react';
+import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart, AlertTriangle, DollarSign, Package, X, CheckSquare, Square, ShoppingCart, RefreshCw, Users } from 'lucide-react';
 import { Tree, TreeFilter } from '@/types/tree';
 import { useWishlist } from '@/hooks/use-wishlist';
 import treesData from '../../../data/trees.json';
@@ -47,6 +47,8 @@ export default function InventoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [activeQuickFilter, setActiveQuickFilter] = useState<'lowStock' | 'highValue' | 'outOfStock' | null>(null);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [reorderItems, setReorderItems] = useState<Set<string>>(new Set());
   const itemsPerPage = 12;
 
   // Simulate loading when filters change
@@ -271,6 +273,75 @@ export default function InventoryPage() {
     setCurrentPage(1);
   };
 
+  // Bulk Actions Functions
+  const toggleSelectItem = (treeId: string) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(treeId)) {
+      newSelected.delete(treeId);
+    } else {
+      newSelected.add(treeId);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.size === paginatedTrees.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(paginatedTrees.map(tree => tree.id)));
+    }
+  };
+
+  const handleAddToRequest = () => {
+    const selectedTrees = trees.filter(tree => selectedItems.has(tree.id));
+    // Simulate adding to request form
+    alert(`Added ${selectedTrees.length} trees to request form:\n${selectedTrees.map(t => `• ${t.commonName}`).join('\n')}`);
+    setSelectedItems(new Set());
+  };
+
+  const handleExportSelected = () => {
+    const selectedTrees = trees.filter(tree => selectedItems.has(tree.id));
+    const csvData = selectedTrees.map(tree => ({
+      'Common Name': tree.commonName,
+      'Botanical Name': tree.botanicalName,
+      'Category': tree.category,
+      'Size': tree.size,
+      'Price': tree.price,
+      'Quantity in Stock': tree.quantityInStock,
+      'SKU': tree.sku,
+      'Availability': tree.quantityInStock > 0 ? 'In Stock' : 'Out of Stock'
+    }));
+    
+    const csv = [
+      Object.keys(csvData[0]).join(','),
+      ...csvData.map(row => Object.values(row).map(value => 
+        typeof value === 'string' && value.includes(',') ? `"${value}"` : value
+      ).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `selected_trees_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    setSelectedItems(new Set());
+  };
+
+  const handleMarkForReorder = () => {
+    const newReorderItems = new Set(reorderItems);
+    selectedItems.forEach(id => newReorderItems.add(id));
+    setReorderItems(newReorderItems);
+    setSelectedItems(new Set());
+  };
+
+  const clearSelection = () => {
+    setSelectedItems(new Set());
+  };
+
   const TreeCardSkeleton = () => (
     <Card className="animate-pulse">
       <CardHeader>
@@ -450,6 +521,23 @@ export default function InventoryPage() {
         {/* Sort Options and Results */}
         <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-2 items-start sm:items-center justify-between mt-4">
           <div className="flex gap-2 flex-wrap order-2 sm:order-1">
+            {/* Select All Checkbox */}
+            <div className="flex items-center gap-2 mr-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleSelectAll}
+                className="h-8 px-2 hover:bg-blue-50"
+              >
+                {selectedItems.size === paginatedTrees.length && paginatedTrees.length > 0 ? 
+                  <CheckSquare className="h-4 w-4 text-blue-600" /> : 
+                  <Square className="h-4 w-4 text-gray-400" />
+                }
+                <span className="ml-2 text-xs text-muted-foreground">
+                  Select All
+                </span>
+              </Button>
+            </div>
             <Label className="text-sm text-muted-foreground self-center hidden sm:inline">Sort by:</Label>
             <Button
               variant={filters.sortBy === 'name' ? 'default' : 'outline'}
@@ -606,6 +694,61 @@ export default function InventoryPage() {
         </div>
       </div>
 
+      {/* Bulk Actions Toolbar */}
+      {selectedItems.size > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <CheckSquare className="h-5 w-5 text-blue-600" />
+              <span className="font-medium text-blue-800">
+                {selectedItems.size} item{selectedItems.size !== 1 ? 's' : ''} selected
+              </span>
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                onClick={handleAddToRequest}
+                className="bg-green-600 hover:bg-green-700 text-white h-8 px-3 text-xs"
+              >
+                <ShoppingCart className="h-3 w-3 mr-1.5" />
+                Add to Request
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleExportSelected}
+                className="border-blue-300 text-blue-700 hover:bg-blue-50 h-8 px-3 text-xs"
+              >
+                <Download className="h-3 w-3 mr-1.5" />
+                Export Selected
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleMarkForReorder}
+                className="border-orange-300 text-orange-700 hover:bg-orange-50 h-8 px-3 text-xs"
+              >
+                <RefreshCw className="h-3 w-3 mr-1.5" />
+                Mark for Reorder
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={clearSelection}
+                className="text-gray-600 hover:bg-gray-100 h-8 px-3 text-xs"
+              >
+                <X className="h-3 w-3 mr-1.5" />
+                Clear Selection
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tree Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {isLoading ? (
@@ -614,9 +757,41 @@ export default function InventoryPage() {
           ))
         ) : (
           paginatedTrees.map((tree) => (
-          <Link key={tree.id} href={`/inventory/${tree.id}`}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer touch-manipulation">
-            <CardHeader className="p-4 sm:p-6">
+          <div key={tree.id} className="relative">
+            <Card className={`hover:shadow-lg transition-all cursor-pointer touch-manipulation ${
+              selectedItems.has(tree.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+            } ${reorderItems.has(tree.id) ? 'border-orange-300 bg-orange-50' : ''}`}>
+              {/* Selection Checkbox */}
+              <div className="absolute top-2 left-2 z-10">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-blue-100"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleSelectItem(tree.id);
+                  }}
+                >
+                  {selectedItems.has(tree.id) ? 
+                    <CheckSquare className="h-4 w-4 text-blue-600" /> : 
+                    <Square className="h-4 w-4 text-gray-400 hover:text-blue-500" />
+                  }
+                </Button>
+              </div>
+
+              {/* Reorder Indicator */}
+              {reorderItems.has(tree.id) && (
+                <div className="absolute top-2 right-2 z-10">
+                  <Badge className="bg-orange-500 text-white text-xs">
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Reorder
+                  </Badge>
+                </div>
+              )}
+
+            <Link href={`/inventory/${tree.id}`}>
+            <CardHeader className="p-4 sm:p-6 pt-8">
               <div className="flex justify-between items-start mb-2 gap-2">
                 <Badge variant="outline" className="text-xs flex-shrink-0">{tree.category}</Badge>
                 <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
@@ -691,8 +866,9 @@ export default function InventoryPage() {
                 </Button>
               </div>
             </CardContent>
+            </Link>
             </Card>
-          </Link>
+          </div>
           ))
         )}
       </div>
