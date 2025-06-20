@@ -7,11 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   DollarSign, 
   Package, 
   AlertTriangle, 
   TrendingUp, 
+  TrendingDown,
   BarChart3, 
   Activity,
   TreePine,
@@ -20,40 +22,77 @@ import {
   Calendar,
   ArrowUp,
   ArrowDown,
-  Download
+  Download,
+  MapPin,
+  Clock,
+  Target,
+  Leaf,
+  Sun,
+  Snowflake,
+  Bell,
+  PieChart,
+  LineChart,
+  Award,
+  Zap
 } from 'lucide-react';
 import treesData from '../../../data/trees.json';
 import { Tree } from '@/types/tree';
 
 const trees: Tree[] = treesData as Tree[];
 
-// Sample client requests data for analytics
+// Enhanced client requests data with geographic information
 const clientRequests = [
-  { id: 'REQ-001', date: '2024-06-15', client: 'Austin Parks & Recreation', value: 970, status: 'pending' },
-  { id: 'REQ-002', date: '2024-06-18', client: 'Highland Homes', value: 2720, status: 'approved' },
-  { id: 'REQ-003', date: '2024-06-20', client: 'University of Texas', value: 2000, status: 'quoted' },
-  { id: 'REQ-004', date: '2024-06-19', client: 'Four Points Landscape Co.', value: 630, status: 'fulfilled' },
-  { id: 'REQ-005', date: '2024-06-21', client: 'Sarah Johnson', value: 48, status: 'pending' }
+  { id: 'REQ-001', date: '2024-06-15', client: 'Austin Parks & Recreation', value: 970, status: 'pending', location: 'Austin, TX', type: 'municipal' },
+  { id: 'REQ-002', date: '2024-06-18', client: 'Highland Homes', value: 2720, status: 'approved', location: 'Cedar Park, TX', type: 'residential' },
+  { id: 'REQ-003', date: '2024-06-20', client: 'University of Texas', value: 2000, status: 'quoted', location: 'Austin, TX', type: 'institutional' },
+  { id: 'REQ-004', date: '2024-06-19', client: 'Four Points Landscape Co.', value: 630, status: 'fulfilled', location: 'Lakeway, TX', type: 'commercial' },
+  { id: 'REQ-005', date: '2024-06-21', client: 'Sarah Johnson', value: 480, status: 'pending', location: 'Round Rock, TX', type: 'residential' },
+  { id: 'REQ-006', date: '2024-06-14', client: 'Dell Technologies', value: 3500, status: 'fulfilled', location: 'Austin, TX', type: 'corporate' },
+  { id: 'REQ-007', date: '2024-06-12', client: 'Westlake HOA', value: 1200, status: 'quoted', location: 'Westlake, TX', type: 'residential' }
 ];
 
-interface DashboardMetrics {
+// Simulated historical data for trends
+const monthlyData = [
+  { month: 'Jan', revenue: 15000, orders: 45, averageOrder: 333 },
+  { month: 'Feb', revenue: 18500, orders: 52, averageOrder: 356 },
+  { month: 'Mar', revenue: 22000, orders: 61, averageOrder: 361 },
+  { month: 'Apr', revenue: 28000, orders: 74, averageOrder: 378 },
+  { month: 'May', revenue: 35000, orders: 89, averageOrder: 393 },
+  { month: 'Jun', revenue: 42000, orders: 105, averageOrder: 400 }
+];
+
+interface BusinessMetrics {
+  // Existing metrics
   totalInventoryValue: number;
   totalTrees: number;
   lowStockItems: Tree[];
   outOfStockItems: Tree[];
   averagePrice: number;
-  categoryBreakdown: { category: string; count: number; value: number }[];
-  priceDistribution: { range: string; count: number; percentage: number }[];
-  recentActivity: any[];
-  topValueTrees: Tree[];
-  stockByCategory: { category: string; inStock: number; total: number }[];
+  categoryBreakdown: { category: string; count: number; value: number; margin: number }[];
+  
+  // New advanced metrics
+  monthlyProjection: number;
+  profitabilityAnalysis: { category: string; revenue: number; cost: number; margin: number; profitability: string }[];
+  customerInsights: { location: string; count: number; totalValue: number; avgValue: number; type: string }[];
+  inventoryTurnover: { tree: Tree; popularity: number; daysInStock: number; turnoverRate: string }[];
+  seasonalRecommendations: { season: string; recommendations: string[]; priority: string }[];
+  reorderAlerts: { tree: Tree; urgency: string; recommendedAction: string; daysUntilOutOfStock: number }[];
+  keyKPIs: { 
+    salesGrowth: number; 
+    inventoryTurnover: number; 
+    avgOrderValue: number; 
+    customerRetention: number;
+    profitMargin: number;
+    stockEfficiency: number;
+  };
 }
 
 export default function AdminDashboard() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d');
+  const [activeTab, setActiveTab] = useState('overview');
 
-  // Calculate comprehensive business metrics
-  const metrics: DashboardMetrics = useMemo(() => {
+  // Calculate comprehensive business metrics with advanced analytics
+  const metrics: BusinessMetrics = useMemo(() => {
     // Basic calculations
     const totalInventoryValue = trees.reduce((sum, tree) => sum + (tree.price * tree.quantityInStock), 0);
     const totalTrees = trees.reduce((sum, tree) => sum + tree.quantityInStock, 0);
@@ -61,80 +100,154 @@ export default function AdminDashboard() {
     const outOfStockItems = trees.filter(tree => tree.quantityInStock === 0);
     const averagePrice = trees.reduce((sum, tree) => sum + tree.price, 0) / trees.length;
 
-    // Category breakdown
+    // Monthly revenue projection based on current trends
+    const currentMonthRevenue = monthlyData[monthlyData.length - 1].revenue;
+    const previousMonthRevenue = monthlyData[monthlyData.length - 2].revenue;
+    const growthRate = (currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue;
+    const monthlyProjection = currentMonthRevenue * (1 + growthRate);
+
+    // Enhanced category breakdown with profitability
     const categoryMap = trees.reduce((acc, tree) => {
       const category = tree.category;
       if (!acc[category]) {
-        acc[category] = { count: 0, value: 0 };
+        acc[category] = { count: 0, value: 0, cost: 0 };
       }
       acc[category].count += tree.quantityInStock;
       acc[category].value += tree.price * tree.quantityInStock;
+      // Estimate cost at 60% of price
+      acc[category].cost += (tree.price * 0.6) * tree.quantityInStock;
       return acc;
-    }, {} as Record<string, { count: number; value: number }>);
+    }, {} as Record<string, { count: number; value: number; cost: number }>);
 
     const categoryBreakdown = Object.entries(categoryMap).map(([category, data]) => ({
       category,
       count: data.count,
-      value: data.value
+      value: data.value,
+      margin: ((data.value - data.cost) / data.value) * 100
     }));
 
-    // Price distribution
-    const priceRanges = [
-      { range: '$10-20', min: 10, max: 20 },
-      { range: '$21-40', min: 21, max: 40 },
-      { range: '$41-60', min: 41, max: 60 },
-      { range: '$61-100', min: 61, max: 100 },
-      { range: '$100+', min: 100, max: Infinity }
-    ];
-
-    const priceDistribution = priceRanges.map(range => {
-      const count = trees.filter(tree => tree.price >= range.min && tree.price <= range.max).length;
-      return {
-        range: range.range,
-        count,
-        percentage: (count / trees.length) * 100
-      };
-    });
-
-    // Top value trees (highest inventory value)
-    const topValueTrees = [...trees]
-      .map(tree => ({ ...tree, inventoryValue: tree.price * tree.quantityInStock }))
-      .sort((a, b) => b.inventoryValue - a.inventoryValue)
-      .slice(0, 5);
-
-    // Stock by category
-    const stockByCategory = Object.entries(categoryMap).map(([category, data]) => {
-      const categoryTrees = trees.filter(tree => tree.category === category);
-      const inStock = categoryTrees.filter(tree => tree.quantityInStock > 0).length;
+    // Profitability Analysis
+    const profitabilityAnalysis = Object.entries(categoryMap).map(([category, data]) => {
+      const margin = ((data.value - data.cost) / data.value) * 100;
+      let profitability = 'Low';
+      if (margin > 45) profitability = 'High';
+      else if (margin > 35) profitability = 'Medium';
+      
       return {
         category,
-        inStock,
-        total: categoryTrees.length
+        revenue: data.value,
+        cost: data.cost,
+        margin,
+        profitability
       };
-    });
+    }).sort((a, b) => b.margin - a.margin);
 
-    // Recent activity (mock data based on client requests)
-    const recentActivity = [
-      ...clientRequests.slice(0, 3).map(req => ({
-        type: 'order',
-        description: `New order from ${req.client}`,
-        value: req.value,
-        time: req.date,
-        status: req.status
-      })),
+    // Customer Insights with geographic analysis
+    const locationMap = clientRequests.reduce((acc, req) => {
+      const location = req.location;
+      if (!acc[location]) {
+        acc[location] = { count: 0, totalValue: 0, types: new Set() };
+      }
+      acc[location].count += 1;
+      acc[location].totalValue += req.value;
+      acc[location].types.add(req.type);
+      return acc;
+    }, {} as Record<string, { count: number; totalValue: number; types: Set<string> }>);
+
+    const customerInsights = Object.entries(locationMap).map(([location, data]) => ({
+      location,
+      count: data.count,
+      totalValue: data.totalValue,
+      avgValue: data.totalValue / data.count,
+      type: Array.from(data.types).join(', ')
+    })).sort((a, b) => b.totalValue - a.totalValue);
+
+    // Inventory Turnover Analysis (simulated based on price and stock)
+    const inventoryTurnover = trees.map(tree => {
+      // Simulate popularity based on price point and stock levels
+      const popularity = Math.max(0, 100 - (tree.price / 10) + (20 - tree.quantityInStock));
+      const daysInStock = Math.floor(Math.random() * 90) + 30; // 30-120 days
+      let turnoverRate = 'Slow';
+      if (popularity > 80) turnoverRate = 'Fast';
+      else if (popularity > 60) turnoverRate = 'Medium';
+      
+      return { tree, popularity, daysInStock, turnoverRate };
+    }).sort((a, b) => b.popularity - a.popularity);
+
+    // Seasonal Planning Recommendations
+    const currentMonth = new Date().getMonth();
+    const seasonalRecommendations = [
       {
-        type: 'inventory',
-        description: `${lowStockItems.length} items running low on stock`,
-        time: new Date().toISOString().split('T')[0],
-        status: 'alert'
+        season: 'Summer (Current)',
+        recommendations: [
+          'Stock drought-resistant varieties',
+          'Promote shade trees for immediate planting',
+          'Increase irrigation supplies inventory'
+        ],
+        priority: 'High'
       },
       {
-        type: 'restock',
-        description: 'Received shipment of 25 Oak trees',
-        time: '2024-06-19',
-        status: 'completed'
+        season: 'Fall Planning',
+        recommendations: [
+          'Prepare deciduous trees for fall planting season',
+          'Stock winter-hardy varieties',
+          'Plan promotional campaigns for fall landscaping'
+        ],
+        priority: 'Medium'
+      },
+      {
+        season: 'Winter Preparation',
+        recommendations: [
+          'Focus on evergreen inventory',
+          'Prepare cold protection supplies',
+          'Plan spring marketing campaigns'
+        ],
+        priority: 'Low'
       }
     ];
+
+    // Reorder Alerts for high-value trees
+    const reorderAlerts = trees
+      .filter(tree => tree.quantityInStock <= 10 && tree.price > 50)
+      .map(tree => {
+        let urgency = 'Low';
+        let daysUntilOutOfStock = Math.floor(tree.quantityInStock * 7); // Assume 1 tree sold per week
+        
+        if (tree.quantityInStock <= 3) {
+          urgency = 'Critical';
+          daysUntilOutOfStock = tree.quantityInStock * 3;
+        } else if (tree.quantityInStock <= 7) {
+          urgency = 'High';
+          daysUntilOutOfStock = tree.quantityInStock * 5;
+        }
+        
+        const recommendedAction = urgency === 'Critical' 
+          ? 'Immediate reorder required' 
+          : urgency === 'High' 
+          ? 'Schedule reorder within 1 week'
+          : 'Monitor and reorder when convenient';
+        
+        return {
+          tree,
+          urgency,
+          recommendedAction,
+          daysUntilOutOfStock
+        };
+      })
+      .sort((a, b) => {
+        const urgencyOrder = { 'Critical': 3, 'High': 2, 'Low': 1 };
+        return urgencyOrder[b.urgency as keyof typeof urgencyOrder] - urgencyOrder[a.urgency as keyof typeof urgencyOrder];
+      });
+
+    // Key Performance Indicators
+    const keyKPIs = {
+      salesGrowth: ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100,
+      inventoryTurnover: (totalInventoryValue / currentMonthRevenue) * 30, // Days to sell current inventory
+      avgOrderValue: clientRequests.reduce((sum, req) => sum + req.value, 0) / clientRequests.length,
+      customerRetention: 85, // Simulated
+      profitMargin: ((totalInventoryValue * 0.4) / totalInventoryValue) * 100, // Assume 40% margin
+      stockEfficiency: ((trees.length - outOfStockItems.length) / trees.length) * 100
+    };
 
     return {
       totalInventoryValue,
@@ -143,97 +256,38 @@ export default function AdminDashboard() {
       outOfStockItems,
       averagePrice,
       categoryBreakdown,
-      priceDistribution,
-      recentActivity,
-      topValueTrees,
-      stockByCategory
+      monthlyProjection,
+      profitabilityAnalysis,
+      customerInsights,
+      inventoryTurnover,
+      seasonalRecommendations,
+      reorderAlerts,
+      keyKPIs
     };
   }, []);
 
-  // Chart component for visual data
-  const BarChart = ({ data, title, valueKey, labelKey, color = '#4a7c1f' }: any) => {
+  // Chart Components
+  const LineChart = ({ data, title, valueKey, color = '#4a7c1f' }: any) => {
+    if (!data || data.length === 0) return null;
     const maxValue = Math.max(...data.map((item: any) => item[valueKey]));
     
     return (
       <div className="space-y-3">
         <h4 className="font-medium text-sm text-muted-foreground">{title}</h4>
-        <div className="space-y-2">
+        <div className="h-32 flex items-end justify-between gap-2">
           {data.map((item: any, index: number) => (
-            <div key={index} className="flex items-center gap-3">
-              <div className="w-20 text-xs font-medium truncate">
-                {item[labelKey]}
-              </div>
-              <div className="flex-1 bg-gray-200 rounded-full h-2 relative">
-                <div 
-                  className="h-2 rounded-full"
-                  style={{ 
-                    width: `${(item[valueKey] / maxValue) * 100}%`,
-                    backgroundColor: color
-                  }}
-                />
-              </div>
-              <div className="w-16 text-xs text-muted-foreground text-right">
-                {typeof item[valueKey] === 'number' && item[valueKey] > 1000 
-                  ? `$${Math.round(item[valueKey] / 1000)}k`
-                  : valueKey === 'percentage' 
-                  ? `${item[valueKey].toFixed(1)}%`
-                  : item[valueKey]
-                }
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const DonutChart = ({ data, title }: any) => {
-    const total = data.reduce((sum: number, item: any) => sum + item.count, 0);
-    let currentAngle = 0;
-    
-    return (
-      <div className="flex flex-col items-center space-y-3">
-        <h4 className="font-medium text-sm text-muted-foreground">{title}</h4>
-        <div className="relative">
-          <svg width="120" height="120" className="transform -rotate-90">
-            {data.map((item: any, index: number) => {
-              const percentage = (item.count / total) * 100;
-              const strokeDasharray = `${percentage * 2.51} 251.2`;
-              const strokeDashoffset = -currentAngle * 2.51;
-              const color = index === 0 ? '#4a7c1f' : '#7ca95a';
-              currentAngle += percentage;
-              
-              return (
-                <circle
-                  key={index}
-                  cx="60"
-                  cy="60"
-                  r="40"
-                  fill="none"
-                  stroke={color}
-                  strokeWidth="12"
-                  strokeDasharray={strokeDasharray}
-                  strokeDashoffset={strokeDashoffset}
-                  className="transition-all duration-500"
-                />
-              );
-            })}
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-lg font-bold">{total}</div>
-              <div className="text-xs text-muted-foreground">Total</div>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-1">
-          {data.map((item: any, index: number) => (
-            <div key={index} className="flex items-center gap-2 text-xs">
+            <div key={index} className="flex flex-col items-center flex-1">
               <div 
-                className="w-3 h-3 rounded"
-                style={{ backgroundColor: index === 0 ? '#4a7c1f' : '#7ca95a' }}
+                className="w-full rounded-t transition-all duration-500"
+                style={{ 
+                  height: `${(item[valueKey] / maxValue) * 100}%`,
+                  backgroundColor: color,
+                  minHeight: '4px'
+                }}
               />
-              <span>{item.category}: {item.count}</span>
+              <div className="text-xs text-muted-foreground mt-1 text-center">
+                {item.month}
+              </div>
             </div>
           ))}
         </div>
@@ -241,15 +295,35 @@ export default function AdminDashboard() {
     );
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
+  const KPICard = ({ title, value, change, icon: Icon, trend, suffix = '' }: any) => (
+    <Card>
+      <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Business Dashboard</h1>
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold">{value}{suffix}</p>
+            {change !== undefined && (
+              <div className={`flex items-center text-xs ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                {trend === 'up' ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
+                {Math.abs(change).toFixed(1)}%
+              </div>
+            )}
+          </div>
+          <Icon className="h-8 w-8 text-muted-foreground" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      {/* Header */}
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Business Intelligence Dashboard</h1>
             <p className="text-muted-foreground">
-              Comprehensive analytics for Greentree Co. inventory and operations
+              Advanced analytics and operational insights for Greentree Co.
             </p>
           </div>
           <div className="flex gap-2">
@@ -266,318 +340,412 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Inventory Value</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${metrics.totalInventoryValue.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Across {trees.length} tree varieties
-            </p>
-          </CardContent>
-        </Card>
+      {/* Tabs for different dashboard views */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 h-auto sm:h-10">
+          <TabsTrigger value="overview" className="text-sm">Overview</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-sm">Analytics</TabsTrigger>
+          <TabsTrigger value="insights" className="text-sm">Customer Insights</TabsTrigger>
+          <TabsTrigger value="planning" className="text-sm">Planning</TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Trees in Stock</CardTitle>
-            <TreePine className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalTrees.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Average: {Math.round(metrics.totalTrees / trees.length)} per variety
-            </p>
-          </CardContent>
-        </Card>
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Key Performance Indicators */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <KPICard 
+              title="Sales Growth" 
+              value={metrics.keyKPIs.salesGrowth.toFixed(1)} 
+              change={metrics.keyKPIs.salesGrowth}
+              icon={TrendingUp} 
+              trend="up"
+              suffix="%" 
+            />
+            <KPICard 
+              title="Avg Order Value" 
+              value={`$${Math.round(metrics.keyKPIs.avgOrderValue).toLocaleString()}`}
+              change={12.5}
+              icon={DollarSign} 
+              trend="up"
+            />
+            <KPICard 
+              title="Stock Efficiency" 
+              value={`${metrics.keyKPIs.stockEfficiency.toFixed(1)}`}
+              change={metrics.keyKPIs.stockEfficiency - 90}
+              icon={Package} 
+              trend={metrics.keyKPIs.stockEfficiency > 90 ? "up" : "down"}
+              suffix="%" 
+            />
+            <KPICard 
+              title="Inventory Turnover" 
+              value={`${Math.round(metrics.keyKPIs.inventoryTurnover)}`}
+              icon={Activity} 
+              suffix=" days"
+            />
+            <KPICard 
+              title="Profit Margin" 
+              value={`${metrics.keyKPIs.profitMargin.toFixed(1)}`}
+              change={2.3}
+              icon={Target} 
+              trend="up"
+              suffix="%" 
+            />
+            <KPICard 
+              title="Customer Retention" 
+              value={`${metrics.keyKPIs.customerRetention}`}
+              change={5.2}
+              icon={Users} 
+              trend="up"
+              suffix="%" 
+            />
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Low Stock Alerts</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
-              {metrics.lowStockItems.length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Items with ≤5 units remaining
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Tree Price</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${Math.round(metrics.averagePrice)}</div>
-            <p className="text-xs text-muted-foreground">
-              Range: ${Math.min(...trees.map(t => t.price))} - ${Math.max(...trees.map(t => t.price))}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Alerts Section */}
-      {(metrics.lowStockItems.length > 0 || metrics.outOfStockItems.length > 0) && (
-        <div className="mb-8">
-          <Card className="border-orange-200 bg-orange-50">
+          {/* Sales Trends */}
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-orange-800">
-                <AlertTriangle className="h-5 w-5" />
-                Inventory Alerts
+              <CardTitle className="flex items-center gap-2">
+                <LineChart className="h-5 w-5" />
+                Sales Trends & Revenue Projection
               </CardTitle>
+              <CardDescription>
+                Monthly revenue growth with projected earnings for next month: 
+                <span className="font-bold text-green-600 ml-2">
+                  ${metrics.monthlyProjection.toLocaleString()}
+                </span>
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {metrics.lowStockItems.length > 0 && (
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>{metrics.lowStockItems.length} items</strong> are running low on stock (≤5 units):
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {metrics.lowStockItems.slice(0, 6).map(tree => (
-                        <Badge key={tree.id} variant="outline" className="text-xs">
-                          {tree.commonName} ({tree.quantityInStock})
-                        </Badge>
-                      ))}
-                      {metrics.lowStockItems.length > 6 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{metrics.lowStockItems.length - 6} more
-                        </Badge>
-                      )}
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              )}
-              
-              {metrics.outOfStockItems.length > 0 && (
-                <Alert className="border-red-200 bg-red-50">
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="text-red-800">
-                    <strong>{metrics.outOfStockItems.length} items</strong> are completely out of stock:
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {metrics.outOfStockItems.slice(0, 4).map(tree => (
-                        <Badge key={tree.id} variant="destructive" className="text-xs">
-                          {tree.commonName}
-                        </Badge>
-                      ))}
-                      {metrics.outOfStockItems.length > 4 && (
-                        <Badge variant="destructive" className="text-xs">
-                          +{metrics.outOfStockItems.length - 4} more
-                        </Badge>
-                      )}
-                    </div>
-                  </AlertDescription>
-                </Alert>
-              )}
+            <CardContent>
+              <LineChart 
+                data={monthlyData}
+                title="Monthly Revenue Trend"
+                valueKey="revenue"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-4 border-t">
+                <div className="text-center">
+                  <div className="text-lg sm:text-2xl font-bold text-green-600">
+                    ${monthlyData[monthlyData.length - 1].revenue.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Current Month</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg sm:text-2xl font-bold text-blue-600">
+                    ${metrics.monthlyProjection.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Projected Next Month</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg sm:text-2xl font-bold">
+                    {metrics.keyKPIs.salesGrowth.toFixed(1)}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Growth Rate</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        </div>
-      )}
 
-      {/* Analytics Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Category Breakdown */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Inventory by Category</CardTitle>
-            <CardDescription>Stock levels and values by tree category</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BarChart 
-              data={metrics.categoryBreakdown}
-              title="Inventory Value by Category"
-              valueKey="value"
-              labelKey="category"
-            />
-          </CardContent>
-        </Card>
+          {/* Critical Alerts */}
+          {metrics.reorderAlerts.length > 0 && (
+            <Card className="border-orange-200 bg-orange-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-orange-800">
+                  <Bell className="h-5 w-5" />
+                  Reorder Alerts - High-Value Inventory
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {metrics.reorderAlerts?.slice(0, 6).map((alert, index) => (
+                    <div key={index} className={`p-4 rounded-lg border-2 ${
+                      alert.urgency === 'Critical' ? 'border-red-300 bg-red-50' :
+                      alert.urgency === 'High' ? 'border-orange-300 bg-orange-50' :
+                      'border-yellow-300 bg-yellow-50'
+                    }`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="font-medium text-sm">{alert.tree.commonName}</div>
+                        <Badge variant={alert.urgency === 'Critical' ? 'destructive' : 'outline'} className="text-xs">
+                          {alert.urgency}
+                        </Badge>
+                      </div>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <div>Stock: {alert.tree.quantityInStock} units</div>
+                        <div>Value: ${alert.tree.price}</div>
+                        <div>Est. {alert.daysUntilOutOfStock} days until depleted</div>
+                      </div>
+                      <div className="mt-3 text-xs font-medium">
+                        {alert.recommendedAction}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
 
-        {/* Price Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Price Distribution</CardTitle>
-            <CardDescription>How trees are distributed across price ranges</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BarChart 
-              data={metrics.priceDistribution}
-              title="Trees by Price Range"
-              valueKey="percentage"
-              labelKey="range"
-              color="#7ca95a"
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Detailed Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Top Value Trees */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Highest Value Inventory</CardTitle>
-            <CardDescription>Trees with highest total inventory value</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {metrics.topValueTrees.map((tree, index) => (
-                <div key={tree.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                  <div>
-                    <div className="font-medium text-sm">{tree.commonName}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {tree.quantityInStock} × ${tree.price}
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-6">
+          {/* Profitability Analysis */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PieChart className="h-5 w-5" />
+                Profitability Analysis by Category
+              </CardTitle>
+              <CardDescription>Revenue, costs, and profit margins by tree category</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {metrics.profitabilityAnalysis?.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium">{item.category}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Revenue: ${item.revenue.toLocaleString()} | Cost: ${item.cost.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold">{item.margin.toFixed(1)}%</div>
+                      <Badge variant={
+                        item.profitability === 'High' ? 'default' :
+                        item.profitability === 'Medium' ? 'secondary' : 'outline'
+                      }>
+                        {item.profitability}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-sm">
-                      ${(tree.price * tree.quantityInStock).toLocaleString()}
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      #{index + 1}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Stock Status by Category */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Stock Status</CardTitle>
-            <CardDescription>In-stock vs total varieties by category</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DonutChart 
-              data={metrics.stockByCategory}
-              title="Stock Availability"
-            />
-            <Separator className="my-4" />
-            <div className="space-y-2">
-              {metrics.stockByCategory.map((item, index) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <span>{item.category}</span>
-                  <span className="font-medium">
-                    {item.inStock}/{item.total} in stock
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest business activities and alerts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {metrics.recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3 p-2 border-l-2 border-gray-200">
-                  <div className="flex-shrink-0 mt-1">
-                    {activity.type === 'order' && <ShoppingCart className="h-4 w-4 text-green-600" />}
-                    {activity.type === 'inventory' && <AlertTriangle className="h-4 w-4 text-orange-500" />}
-                    {activity.type === 'restock' && <Package className="h-4 w-4 text-blue-600" />}
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{activity.description}</div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-2">
-                      <Calendar className="h-3 w-3" />
-                      {activity.time}
-                      {activity.value && (
-                        <>
-                          <span>•</span>
-                          <span className="font-medium">${activity.value.toLocaleString()}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <Badge 
-                    variant={
-                      activity.status === 'completed' ? 'default' :
-                      activity.status === 'alert' ? 'destructive' :
-                      'secondary'
-                    }
-                    className="text-xs"
-                  >
-                    {activity.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Client Requests Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Client Requests</CardTitle>
-          <CardDescription>Overview of recent business inquiries and orders</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">
-                ${clientRequests.reduce((sum, req) => sum + req.value, 0).toLocaleString()}
+                ))}
               </div>
-              <div className="text-sm text-muted-foreground">Total Request Value</div>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold">{clientRequests.length}</div>
-              <div className="text-sm text-muted-foreground">Active Requests</div>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold">
-                ${Math.round(clientRequests.reduce((sum, req) => sum + req.value, 0) / clientRequests.length).toLocaleString()}
-              </div>
-              <div className="text-sm text-muted-foreground">Average Request</div>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-orange-600">
-                {clientRequests.filter(req => req.status === 'pending').length}
-              </div>
-              <div className="text-sm text-muted-foreground">Pending Review</div>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            {clientRequests.map((request) => (
-              <div key={request.id} className="flex items-center justify-between p-3 border rounded-lg">
+            </CardContent>
+          </Card>
+
+          {/* Inventory Turnover */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Inventory Turnover Analysis
+              </CardTitle>
+              <CardDescription>Most and least popular trees based on turnover rates</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <div className="font-medium">{request.client}</div>
-                  <div className="text-sm text-muted-foreground">{request.id} • {request.date}</div>
+                  <h4 className="font-medium mb-3 text-green-600">Top Performers (Fast Turnover)</h4>
+                  <div className="space-y-2">
+                    {metrics.inventoryTurnover?.filter(item => item.turnoverRate === 'Fast').slice(0, 5).map((item, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 bg-green-50 rounded">
+                        <div>
+                          <div className="font-medium text-sm">{item.tree.commonName}</div>
+                          <div className="text-xs text-muted-foreground">
+                            ${item.tree.price} | {item.tree.quantityInStock} in stock
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold">{item.popularity.toFixed(0)}%</div>
+                          <div className="text-xs text-green-600">Fast</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="font-bold">${request.value.toLocaleString()}</div>
-                  <Badge 
-                    variant={
-                      request.status === 'fulfilled' ? 'default' :
-                      request.status === 'approved' ? 'secondary' :
-                      request.status === 'pending' ? 'destructive' :
-                      'outline'
-                    }
-                    className="text-xs"
-                  >
-                    {request.status}
-                  </Badge>
+                <div>
+                  <h4 className="font-medium mb-3 text-orange-600">Slow Movers (Needs Attention)</h4>
+                  <div className="space-y-2">
+                    {metrics.inventoryTurnover?.filter(item => item.turnoverRate === 'Slow').slice(0, 5).map((item, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 bg-orange-50 rounded">
+                        <div>
+                          <div className="font-medium text-sm">{item.tree.commonName}</div>
+                          <div className="text-xs text-muted-foreground">
+                            ${item.tree.price} | {item.tree.quantityInStock} in stock
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold">{item.popularity.toFixed(0)}%</div>
+                          <div className="text-xs text-orange-600">Slow</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Customer Insights Tab */}
+        <TabsContent value="insights" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Geographic Customer Analysis
+              </CardTitle>
+              <CardDescription>Client distribution and value by location</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {metrics.customerInsights?.map((insight, index) => (
+                  <div key={index} className="p-4 border rounded-lg">
+                    <div className="flex items-center gap-2 mb-3">
+                      <MapPin className="h-4 w-4 text-blue-600" />
+                      <div className="font-medium">{insight.location}</div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Clients:</span>
+                        <span className="font-medium">{insight.count}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Total Value:</span>
+                        <span className="font-medium">${insight.totalValue.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Avg Value:</span>
+                        <span className="font-medium">${Math.round(insight.avgValue).toLocaleString()}</span>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <div className="text-xs text-muted-foreground">Types: {insight.type}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Customer Types Analysis */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Client Type Analysis</CardTitle>
+              <CardDescription>Revenue breakdown by customer segment</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                {Object.entries(
+                  clientRequests.reduce((acc, req) => {
+                    if (!acc[req.type]) acc[req.type] = { count: 0, value: 0 };
+                    acc[req.type].count += 1;
+                    acc[req.type].value += req.value;
+                    return acc;
+                  }, {} as Record<string, { count: number; value: number }>)
+                ).map(([type, data]) => (
+                  <div key={type} className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-lg font-bold">${data.value.toLocaleString()}</div>
+                    <div className="text-sm text-muted-foreground">{type}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{data.count} clients</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Planning Tab */}
+        <TabsContent value="planning" className="space-y-6">
+          {/* Seasonal Planning */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Seasonal Planning Recommendations
+              </CardTitle>
+              <CardDescription>Strategic recommendations for upcoming seasons</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {metrics.seasonalRecommendations?.map((season, index) => (
+                  <div key={index} className={`p-4 rounded-lg border-2 ${
+                    season.priority === 'High' ? 'border-green-300 bg-green-50' :
+                    season.priority === 'Medium' ? 'border-blue-300 bg-blue-50' :
+                    'border-gray-300 bg-gray-50'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      {index === 0 ? <Sun className="h-5 w-5 text-yellow-600" /> :
+                       index === 1 ? <Leaf className="h-5 w-5 text-orange-600" /> :
+                       <Snowflake className="h-5 w-5 text-blue-600" />}
+                      <div className="font-medium">{season.season}</div>
+                      <Badge variant={season.priority === 'High' ? 'default' : 'secondary'} className="text-xs">
+                        {season.priority}
+                      </Badge>
+                    </div>
+                    <ul className="space-y-2 text-sm">
+                      {season.recommendations.map((rec, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-green-600 mt-1">•</span>
+                          <span>{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Business Performance Summary */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5" />
+                Business Performance Summary
+              </CardTitle>
+              <CardDescription>Key achievements and areas for improvement</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium mb-3 text-green-600 flex items-center gap-2">
+                    <Zap className="h-4 w-4" />
+                    Strengths
+                  </h4>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span>
+                      Strong sales growth of {metrics.keyKPIs.salesGrowth.toFixed(1)}%
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span>
+                      High stock efficiency at {metrics.keyKPIs.stockEfficiency.toFixed(1)}%
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span>
+                      Healthy profit margins across categories
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span>
+                      Diverse customer base across locations
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-3 text-orange-600 flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Opportunities
+                  </h4>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <span className="text-orange-600">→</span>
+                      Focus on slow-moving inventory
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-orange-600">→</span>
+                      Expand high-margin categories
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-orange-600">→</span>
+                      Improve inventory turnover rate
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-orange-600">→</span>
+                      Develop corporate client relationships
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
