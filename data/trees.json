@@ -13,7 +13,7 @@
     "size": "6-8 feet",
     "price": 125.99,
     "quantityInStock": 15,
-    "image": "/images/american-oak.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=American+Oak"
   },
   {
     "id": "2",
@@ -29,7 +29,7 @@
     "size": "5-7 feet",
     "price": 89.99,
     "quantityInStock": 22,
-    "image": "/images/sugar-maple.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Sugar+Maple"
   },
   {
     "id": "3",
@@ -45,7 +45,7 @@
     "size": "4-6 feet",
     "price": 65.99,
     "quantityInStock": 18,
-    "image": "/images/eastern-redbud.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Eastern+Redbud"
   },
   {
     "id": "4",
@@ -61,7 +61,7 @@
     "size": "8-10 feet",
     "price": 145.99,
     "quantityInStock": 8,
-    "image": "/images/white-pine.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=White+Pine"
   },
   {
     "id": "5",
@@ -77,7 +77,7 @@
     "size": "3-5 feet",
     "price": 75.99,
     "quantityInStock": 12,
-    "image": "/images/flowering-dogwood.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Flowering+Dogwood"
   },
   {
     "id": "6",
@@ -93,7 +93,7 @@
     "size": "6-8 feet",
     "price": 95.99,
     "quantityInStock": 20,
-    "image": "/images/red-maple.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Red+Maple"
   },
   {
     "id": "7",
@@ -109,7 +109,7 @@
     "size": "5-7 feet",
     "price": 85.99,
     "quantityInStock": 14,
-    "image": "/images/paper-birch.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Paper+Birch"
   },
   {
     "id": "8",
@@ -125,7 +125,7 @@
     "size": "7-9 feet",
     "price": 135.99,
     "quantityInStock": 6,
-    "image": "/images/american-elm.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=American+Elm"
   },
   {
     "id": "9",
@@ -141,7 +141,7 @@
     "size": "6-8 feet",
     "price": 115.99,
     "quantityInStock": 10,
-    "image": "/images/bald-cypress.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Bald+Cypress"
   },
   {
     "id": "10",
@@ -157,6 +157,6 @@
     "size": "8-10 feet",
     "price": 155.99,
     "quantityInStock": 5,
-    "image": "/images/tulip-tree.jpg"
+    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Tulip+Tree"
   }
 ]
