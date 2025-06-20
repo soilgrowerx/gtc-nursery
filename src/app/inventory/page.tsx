@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -813,7 +814,18 @@ export default function InventoryPage() {
               )}
 
             <div onClick={() => openTreeModal(tree)}>
-            <CardHeader className="p-4 sm:p-6 pt-8">
+              {/* Tree Image */}
+              <div className="relative aspect-video overflow-hidden rounded-t-lg">
+                <Image
+                  src={`https://placehold.co/300x200/22c55e/ffffff?text=${encodeURIComponent(tree.commonName)}`}
+                  alt={`${tree.commonName} (${tree.botanicalName})`}
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              
+            <CardHeader className="p-4 sm:p-6 pt-4">
               <div className="flex justify-between items-start mb-2 gap-2">
                 <Badge variant="outline" className="text-xs flex-shrink-0">{tree.category}</Badge>
                 <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
@@ -973,12 +985,14 @@ export default function InventoryPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
                 {/* Tree Image Section */}
                 <div className="space-y-4">
-                  <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded-lg border-2 border-green-300 flex items-center justify-center">
-                    <div className="text-center p-6">
-                      <TreePine className="h-24 w-24 text-green-600 mx-auto mb-4" />
-                      <p className="text-green-700 font-medium">Professional Tree Photo</p>
-                      <p className="text-green-600 text-sm">Coming Soon</p>
-                    </div>
+                  <div className="relative aspect-square overflow-hidden rounded-lg border-2 border-green-300">
+                    <Image
+                      src={`https://placehold.co/400x400/22c55e/ffffff?text=${encodeURIComponent(selectedTree.commonName)}`}
+                      alt={`${selectedTree.commonName} (${selectedTree.botanicalName})`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
                   </div>
                   
                   {/* Quick Info Cards */}

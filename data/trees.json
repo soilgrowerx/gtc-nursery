@@ -13,7 +13,7 @@
     "size": "1 Gallon",
     "price": 160,
     "quantityInStock": 6,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Cypress%2C%20Bald"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Cypress%2C%20Bald"
   },
   {
     "id": "44",
@@ -29,7 +29,7 @@
     "size": "1 Gallon",
     "price": 160,
     "quantityInStock": 0,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Elm%2C%20American"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Elm%2C%20American"
   },
   {
     "id": "45",
@@ -45,7 +45,7 @@
     "size": "1 Gallon",
     "price": 175,
     "quantityInStock": 9,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Elm%2C%20Cedar"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Elm%2C%20Cedar"
   },
   {
     "id": "46",
@@ -61,7 +61,7 @@
     "size": "1 Gallon",
     "price": 175,
     "quantityInStock": 1,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Chinkapin"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Chinkapin"
   },
   {
     "id": "47",
@@ -77,7 +77,7 @@
     "size": "1 Gallon",
     "price": 175,
     "quantityInStock": 10,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Mexican%20White"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Mexican%20White"
   },
   {
     "id": "48",
@@ -93,7 +93,7 @@
     "size": "1 Gallon",
     "price": 160,
     "quantityInStock": 4,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Pecan%2C%20Native"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Pecan%2C%20Native"
   },
   {
     "id": "49",
@@ -109,7 +109,7 @@
     "size": "1 Gallon",
     "price": 175,
     "quantityInStock": 6,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Redbud%2C%20Texas"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Redbud%2C%20Texas"
   },
   {
     "id": "50",
@@ -125,7 +125,7 @@
     "size": "1 Gallon",
     "price": 175,
     "quantityInStock": 3,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Willow%2C%20Desert%20'Bubba'"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Willow%2C%20Desert%20'Bubba'"
   },
   {
     "id": "1",
@@ -141,7 +141,7 @@
     "size": "1 Gallon - 1G/16-20\"",
     "price": 14,
     "quantityInStock": 4,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Anacua"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Anacua"
   },
   {
     "id": "2",
@@ -157,7 +157,7 @@
     "size": "1 Gallon - 1G/6-10\"",
     "price": 16,
     "quantityInStock": 4,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Ash%2C%20Wafer%20(Common%20Hoptree)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Ash%2C%20Wafer%20(Common%20Hoptree)"
   },
   {
     "id": "3",
@@ -173,7 +173,7 @@
     "size": "3-5 Gallon - 5G/36\"",
     "price": 50,
     "quantityInStock": 1,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Basswood%2C%20Carolina"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Basswood%2C%20Carolina"
   },
   {
     "id": "4",
@@ -189,7 +189,7 @@
     "size": "1 Gallon - 1G/1",
     "price": 18,
     "quantityInStock": 2,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Buckeye%2C%20Red%20(R)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Buckeye%2C%20Red%20(R)"
   },
   {
     "id": "5",
@@ -205,7 +205,7 @@
     "size": "1 Gallon - 1G/6-12\"",
     "price": 14,
     "quantityInStock": 16,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Buckthorn%2C%20Carolina"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Buckthorn%2C%20Carolina"
   },
   {
     "id": "6",
@@ -221,7 +221,7 @@
     "size": "1 Gallon",
     "price": 14,
     "quantityInStock": 10,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Bumilia%2C%20Gum"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Bumilia%2C%20Gum"
   },
   {
     "id": "7",
@@ -237,7 +237,7 @@
     "size": "1 Gallon - 1G/1",
     "price": 20,
     "quantityInStock": 3,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Cherry%2C%20Escarpment%20(R)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Cherry%2C%20Escarpment%20(R)"
   },
   {
     "id": "9",
@@ -253,7 +253,7 @@
     "size": "1 Gallon",
     "price": 14,
     "quantityInStock": 1,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Cottonwood%2C%20Eastern"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Cottonwood%2C%20Eastern"
   },
   {
     "id": "8",
@@ -269,7 +269,7 @@
     "size": "1 Gallon - 2/4-20\"",
     "price": 10,
     "quantityInStock": 3,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Cottonwood%2C%20Eastern%20%232"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Cottonwood%2C%20Eastern%20%232"
   },
   {
     "id": "10",
@@ -285,7 +285,7 @@
     "size": "3-5 Gallon - 5G/30-36\"",
     "price": 50,
     "quantityInStock": 2,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Cypress%2C%20Arizona%20'Carolina%20Sapphire'"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Cypress%2C%20Arizona%20'Carolina%20Sapphire'"
   },
   {
     "id": "11",
@@ -301,7 +301,7 @@
     "size": "3-5 Gallon - 5G/4-5'",
     "price": 35,
     "quantityInStock": 4,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Cypress%2C%20Bald"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Cypress%2C%20Bald"
   },
   {
     "id": "12",
@@ -317,7 +317,7 @@
     "size": "3-5 Gallon - 5G/4-5'",
     "price": 35,
     "quantityInStock": 5,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Cypress%2C%20Montezuma"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Cypress%2C%20Montezuma"
   },
   {
     "id": "13",
@@ -333,7 +333,7 @@
     "size": "1 Gallon - 1G/6-12\"",
     "price": 14,
     "quantityInStock": 4,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Dogwood%2C%20Roughleaf"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Dogwood%2C%20Roughleaf"
   },
   {
     "id": "14",
@@ -349,7 +349,7 @@
     "size": "1 Gallon - 1G/30\"",
     "price": 14,
     "quantityInStock": 3,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Elder%2C%20Box"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Elder%2C%20Box"
   },
   {
     "id": "15",
@@ -365,7 +365,7 @@
     "size": "1 Gallon - 1G/24-30\"",
     "price": 14,
     "quantityInStock": 6,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Elm%2C%20American"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Elm%2C%20American"
   },
   {
     "id": "16",
@@ -381,7 +381,7 @@
     "size": "1 Gallon - 1G/12-24\"",
     "price": 14,
     "quantityInStock": 40,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Elm%2C%20Cedar"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Elm%2C%20Cedar"
   },
   {
     "id": "17",
@@ -397,7 +397,7 @@
     "size": "1 Gallon - 1G/20-36\"",
     "price": 14,
     "quantityInStock": 6,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Hackberry%2C%20Sugar"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Hackberry%2C%20Sugar"
   },
   {
     "id": "18",
@@ -413,7 +413,7 @@
     "size": "3-5 Gallon - 5G/18-36\"",
     "price": 40,
     "quantityInStock": 10,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Holly%2C%20Yaupon%20'Pride%20of%20Houston'"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Holly%2C%20Yaupon%20'Pride%20of%20Houston'"
   },
   {
     "id": "19",
@@ -429,7 +429,7 @@
     "size": "1 Gallon - 1G/2",
     "price": 14,
     "quantityInStock": 6,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Mulberry%2C%20Texas%20(seed%20grown)%20(R)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Mulberry%2C%20Texas%20(seed%20grown)%20(R)"
   },
   {
     "id": "20",
@@ -445,7 +445,7 @@
     "size": "1 Gallon",
     "price": 14,
     "quantityInStock": 12,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Necklace%2C%20Eve's"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Necklace%2C%20Eve's"
   },
   {
     "id": "29",
@@ -461,7 +461,7 @@
     "size": "1 Gallon",
     "price": 20,
     "quantityInStock": 2,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%20(Hybrid)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%20(Hybrid)"
   },
   {
     "id": "28",
@@ -477,7 +477,7 @@
     "size": "1 Gallon - 1G/2",
     "price": 20,
     "quantityInStock": 4,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%20(Mexican%20Native)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%20(Mexican%20Native)"
   },
   {
     "id": "21",
@@ -493,7 +493,7 @@
     "size": "1 Gallon - 1G/2",
     "price": 16,
     "quantityInStock": 6,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Blackjack"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Blackjack"
   },
   {
     "id": "22",
@@ -509,7 +509,7 @@
     "size": "3-5 Gallon - 5G/4-5'",
     "price": 55,
     "quantityInStock": 10,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Burr"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Burr"
   },
   {
     "id": "23",
@@ -525,7 +525,7 @@
     "size": "3-5 Gallon - 5G/4-5'",
     "price": 45,
     "quantityInStock": 1,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Canby"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Canby"
   },
   {
     "id": "24",
@@ -541,7 +541,7 @@
     "size": "3-5 Gallon - 5G/36-60\"",
     "price": 40,
     "quantityInStock": 8,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Chinkapin"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Chinkapin"
   },
   {
     "id": "25",
@@ -557,7 +557,7 @@
     "size": "1 Gallon - 1G/6-16\"",
     "price": 16,
     "quantityInStock": 5,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Chinkapin%20(Kerr%20Co)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Chinkapin%20(Kerr%20Co)"
   },
   {
     "id": "26",
@@ -573,7 +573,7 @@
     "size": "1 Gallon - 1G/4-10\"",
     "price": 16,
     "quantityInStock": 20,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Escarpment%20Live"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Escarpment%20Live"
   },
   {
     "id": "27",
@@ -589,7 +589,7 @@
     "size": "3-5 Gallon - 5G/40-60\"",
     "price": 45,
     "quantityInStock": 5,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Lacey"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Lacey"
   },
   {
     "id": "30",
@@ -605,7 +605,7 @@
     "size": "1 Gallon",
     "price": 12,
     "quantityInStock": 20,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Shumard%20Red"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Shumard%20Red"
   },
   {
     "id": "31",
@@ -621,7 +621,7 @@
     "size": "1 Gallon - 1G/4-10\"",
     "price": 16,
     "quantityInStock": 20,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Oak%2C%20Vasey"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Oak%2C%20Vasey"
   },
   {
     "id": "32",
@@ -637,7 +637,7 @@
     "size": "1 Gallon - 1G/12-30\"",
     "price": 14,
     "quantityInStock": 29,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Osage%2C%20Orange"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Osage%2C%20Orange"
   },
   {
     "id": "33",
@@ -653,7 +653,7 @@
     "size": "3-5 Gallon - 5G/30-42\"",
     "price": 40,
     "quantityInStock": 6,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Persimmon%2C%20American"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Persimmon%2C%20American"
   },
   {
     "id": "34",
@@ -669,7 +669,7 @@
     "size": "3-5 Gallon - 5G/3-5'",
     "price": 40,
     "quantityInStock": 4,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Redbud%2C%20Texas"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Redbud%2C%20Texas"
   },
   {
     "id": "35",
@@ -685,7 +685,7 @@
     "size": "3-5 Gallon - 5G/2-4'",
     "price": 35,
     "quantityInStock": 6,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Redbud%2C%20Texas%20(multi-stem)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Redbud%2C%20Texas%20(multi-stem)"
   },
   {
     "id": "36",
@@ -701,7 +701,7 @@
     "size": "1 Gallon - 1G/10-14\"",
     "price": 14,
     "quantityInStock": 8,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Soapberry%2C%20Western"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Soapberry%2C%20Western"
   },
   {
     "id": "37",
@@ -717,7 +717,7 @@
     "size": "1 Gallon - 1G/10-20\"",
     "price": 14,
     "quantityInStock": 16,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Sycamore%2C%20American"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Sycamore%2C%20American"
   },
   {
     "id": "38",
@@ -733,7 +733,7 @@
     "size": "1 Gallon - 1G/24\"",
     "price": 14,
     "quantityInStock": 5,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Sycamore%2C%20Arizona%20(AZ%20native)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Sycamore%2C%20Arizona%20(AZ%20native)"
   },
   {
     "id": "39",
@@ -749,7 +749,7 @@
     "size": "1 Gallon - 1G/6-10\"",
     "price": 14,
     "quantityInStock": 1,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Walnut%2C%20Black"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Walnut%2C%20Black"
   },
   {
     "id": "42",
@@ -765,7 +765,7 @@
     "size": "1 Gallon - 1G/24-36\"",
     "price": 14,
     "quantityInStock": 1,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Willow%2C%20Black"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Willow%2C%20Black"
   },
   {
     "id": "41",
@@ -781,7 +781,7 @@
     "size": "3-5 Gallon - 5G/36\"",
     "price": 40,
     "quantityInStock": 7,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Willow%2C%20Desert%20'Bubba'"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Willow%2C%20Desert%20'Bubba'"
   },
   {
     "id": "40",
@@ -797,6 +797,6 @@
     "size": "1 Gallon - 1G/6-10\"",
     "price": 14,
     "quantityInStock": 10,
-    "image": "https://placehold.co/300x200/228B22/FFFFFF?text=Willow%2C%20Desert%20(Wild%20type)"
+    "image": "https://via.placeholder.com/300x200/228B22/FFFFFF?text=Willow%2C%20Desert%20(Wild%20type)"
   }
 ]
