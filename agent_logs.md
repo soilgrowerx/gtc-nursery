@@ -37,3 +37,26 @@ Building an inventory management platform for Greentree Co. with:
     ]
 }
 ```
+
+### Version 0.1.1 - Enhanced Features
+```json
+{
+    "version": "0.1.1",
+    "git_commit_hash": "9fb4779",
+    "is_successfully_deployed": true,
+    "functionality_changes": [
+        {
+            "description": "Made tree cards clickable - users can click anywhere on a tree card to view details"
+        },
+        {
+            "description": "Added Request Quote functionality from tree detail pages"
+        },
+        {
+            "description": "Fixed Suspense boundary issue for client-side navigation"
+        },
+        {
+            "description": "Improved user experience with seamless navigation between inventory and requests"
+        }
+    ]
+}
+```
