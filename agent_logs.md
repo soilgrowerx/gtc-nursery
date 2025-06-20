@@ -553,3 +553,35 @@ Building an inventory management platform for Greentree Co. with:
     ]
 }
 ```
+
+### Version 0.5.0 - Enhanced Google Apps Script Implementation 📄
+```json
+{
+    "version": "0.5.0",
+    "git_commit_hash": "490f04d",
+    "is_successfully_deployed": true,
+    "functionality_changes": [
+        {
+            "description": "GOOGLE APPS SCRIPT WISHLIST: Added complete wishlist/favorites functionality to the Google Apps Script version with heart icons and localStorage persistence"
+        },
+        {
+            "description": "LOCAL TESTING SUPPORT: Enhanced Google Apps Script files to work locally with mock data for development and testing"
+        },
+        {
+            "description": "MOCK DATA INTEGRATION: Added all 50 real trees with complete data structure for local testing"
+        },
+        {
+            "description": "ENVIRONMENT DETECTION: Smart detection of local vs production environment with automatic switching between mock data and server calls"
+        },
+        {
+            "description": "IMPROVED ERROR HANDLING: Added comprehensive error handling and safety checks for UIManager functions"
+        },
+        {
+            "description": "ENHANCED DEBUGGING: Added detailed console logging for data flow tracking and troubleshooting"
+        },
+        {
+            "description": "MODULAR ARCHITECTURE MAINTAINED: Google Apps Script version ready for deployment while main Next.js app continues at https://fern-app-proud-feather-7255.fly.dev/"
+        }
+    ]
+}
+```
