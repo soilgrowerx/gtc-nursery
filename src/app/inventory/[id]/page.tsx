@@ -170,7 +170,7 @@ export default async function TreeDetailPage({ params }: TreeDetailPageProps) {
                   disabled={tree.quantityInStock === 0}
                   asChild
                 >
-                  <Link href="/requests">
+                  <Link href={`/requests?tree=${tree.id}`}>
                     {tree.quantityInStock > 0 ? 'Request Quote' : 'Out of Stock'}
                   </Link>
                 </Button>

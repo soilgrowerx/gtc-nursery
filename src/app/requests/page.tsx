@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,8 +18,10 @@ import treesData from '../../../data/trees.json';
 
 const trees: Tree[] = treesData as Tree[];
 
-export default function RequestsPage() {
+function RequestsPageContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const formRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -49,6 +52,25 @@ export default function RequestsPage() {
       createdAt: '2024-01-14T14:15:00Z'
     }
   ]);
+
+  useEffect(() => {
+    const treeId = searchParams.get('tree');
+    if (treeId) {
+      const tree = trees.find(t => t.id === treeId);
+      if (tree) {
+        setFormData(prev => ({
+          ...prev,
+          requestedTrees: [tree.commonName]
+        }));
+        
+        setTimeout(() => {
+          if (formRef.current) {
+            formRef.current.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    }
+  }, [searchParams]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -135,7 +157,7 @@ export default function RequestsPage() {
 
         {/* Submit Request Tab */}
         <TabsContent value="submit">
-          <Card>
+          <Card ref={formRef}>
             <CardHeader>
               <CardTitle>Submit a New Request</CardTitle>
               <CardDescription>
@@ -287,5 +309,13 @@ export default function RequestsPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function RequestsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RequestsPageContent />
+    </Suspense>
   );
 }
