@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Trees, Home, Users, FileText } from 'lucide-react';
+import Image from 'next/image';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -20,7 +21,13 @@ export function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <Trees className="h-8 w-8 text-primary" />
+              <Image 
+                src="/gtc-logo.png" 
+                alt="GTC Logo" 
+                width={32} 
+                height={32} 
+                className="h-8 w-8 object-contain"
+              />
               <span className="text-xl font-bold text-foreground">
                 The Greentree Co.
               </span>
