@@ -9,15 +9,30 @@ Building an inventory management platform for Greentree Co. with:
 
 ## Version History
 
-### Version 0.0.1 - Initial Setup
+### Version 0.1.0 - Initial Deployment
 ```json
 {
-    "version": "0.0.1",
-    "git_commit_hash": "pending",
-    "is_successfully_deployed": false,
+    "version": "0.1.0",
+    "git_commit_hash": "9132002",
+    "is_successfully_deployed": true,
     "functionality_changes": [
         {
-            "description": "Initial project setup with Next.js template"
+            "description": "Complete Greentree Co. Inventory Platform implementation"
+        },
+        {
+            "description": "Home page with company branding and navigation"
+        },
+        {
+            "description": "Inventory page with search, category filter, and sort functionality"
+        },
+        {
+            "description": "Client requests page with submission form and request tracking"
+        },
+        {
+            "description": "10 trees with complete mock data including botanical info, care instructions, and companion plants"
+        },
+        {
+            "description": "Successfully deployed to Fly.io at https://fern-app-proud-feather-7255.fly.dev/"
         }
     ]
 }

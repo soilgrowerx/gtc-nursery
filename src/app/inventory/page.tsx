@@ -159,7 +159,8 @@ export default function InventoryPage() {
       {/* Tree Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredAndSortedTrees.map((tree) => (
-          <Card key={tree.id} className="hover:shadow-lg transition-shadow">
+          <Link key={tree.id} href={`/inventory/${tree.id}`}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <CardHeader>
               <div className="flex justify-between items-start mb-2">
                 <Badge variant="outline">{tree.category}</Badge>
@@ -191,12 +192,19 @@ export default function InventoryPage() {
               </div>
 
               <div className="flex gap-2">
-                <Button asChild size="sm" className="flex-1">
-                  <Link href={`/inventory/${tree.id}`}>
-                    View Details
-                  </Link>
+                <Button 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  View Details
                 </Button>
-                <Button variant="outline" size="sm" asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  asChild
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <a 
                     href={tree.iNaturalistUrl} 
                     target="_blank" 
@@ -209,7 +217,8 @@ export default function InventoryPage() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          </Link>
         ))}
       </div>
 
