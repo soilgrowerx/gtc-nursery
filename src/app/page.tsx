@@ -167,26 +167,26 @@ export default function Home() {
                 <CardDescription>Fast access to popular sections</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Link href="/inventory?sort=price&order=desc" className="flex items-center justify-between p-3 sm:p-3 rounded-lg border hover:bg-accent transition-colors touch-manipulation">
+                <Link href="/inventory?sort=price&order=desc" className="flex items-center justify-between p-3 sm:p-3 rounded-lg border hover:bg-accent transition-colors touch-manipulation min-h-[60px]">
                   <div className="flex items-center gap-3">
                     <TrendingUp className="h-4 w-4 text-green-600 flex-shrink-0" />
                     <span className="text-sm sm:text-base">Most Popular Trees</span>
                   </div>
-                  <Badge variant="secondary" className="text-xs">High Value</Badge>
+                  <Badge variant="secondary" className="text-xs flex-shrink-0 ml-2">High Value</Badge>
                 </Link>
-                <Link href="/inventory?availability=inStock" className="flex items-center justify-between p-3 sm:p-3 rounded-lg border hover:bg-accent transition-colors touch-manipulation">
+                <Link href="/inventory?availability=inStock" className="flex items-center justify-between p-3 sm:p-3 rounded-lg border hover:bg-accent transition-colors touch-manipulation min-h-[60px]">
                   <div className="flex items-center gap-3">
                     <Package className="h-4 w-4 text-blue-600 flex-shrink-0" />
                     <span className="text-sm sm:text-base">In Stock Items</span>
                   </div>
-                  <Badge variant="secondary" className="text-xs">{trees.filter(t => t.quantityInStock > 5).length}</Badge>
+                  <Badge variant="secondary" className="text-xs flex-shrink-0 ml-2">{trees.filter(t => t.quantityInStock > 5).length}</Badge>
                 </Link>
-                <Link href="/inventory?availability=lowStock" className="flex items-center justify-between p-3 sm:p-3 rounded-lg border hover:bg-accent transition-colors touch-manipulation">
+                <Link href="/inventory?availability=lowStock" className="flex items-center justify-between p-3 sm:p-3 rounded-lg border hover:bg-accent transition-colors touch-manipulation min-h-[60px]">
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="h-4 w-4 text-orange-600 flex-shrink-0" />
                     <span className="text-sm sm:text-base">Low Stock Items</span>
                   </div>
-                  <Badge variant="destructive" className="text-xs">{stats.lowStock}</Badge>
+                  <Badge variant="destructive" className="text-xs flex-shrink-0 ml-2">{stats.lowStock}</Badge>
                 </Link>
               </CardContent>
             </Card>
