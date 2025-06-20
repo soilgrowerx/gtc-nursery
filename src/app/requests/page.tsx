@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,13 +13,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ClientRequest, Tree } from '@/types/tree';
-import { Send, Check, Clock, Eye, Download } from 'lucide-react';
+import { Send, Check, Clock, Eye, Download, Share2, Copy } from 'lucide-react';
 import treesData from '../../../data/trees.json';
 
 const trees: Tree[] = treesData as Tree[];
 
 function RequestsPageContent() {
   const { toast } = useToast();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const formRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
@@ -117,8 +118,8 @@ function RequestsPageContent() {
     });
 
     toast({
-      title: 'Request Submitted',
-      description: 'We\'ll get back to you within 24 hours.',
+      title: '🎉 Quote Request Submitted Successfully!',
+      description: 'Thank you! We\'ll send your personalized quote within 24 hours. Check your email!',
     });
   };
 
@@ -138,6 +139,27 @@ function RequestsPageContent() {
       case 'completed': return <Check className="h-3 w-3" />;
       default: return null;
     }
+  };
+
+  const shareToFacebook = () => {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('Get your FREE tree quote from Greentree Co! 🌳 Premium trees, professional service, quick quotes. Transform your landscape today!');
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank', 'width=600,height=400');
+  };
+
+  const copyShareableLink = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      toast({
+        title: 'Link Copied! 📋',
+        description: 'Share this link on social media or with friends!',
+      });
+    }).catch(() => {
+      toast({
+        title: 'Error',
+        description: 'Could not copy link. Please try again.',
+        variant: 'destructive'
+      });
+    });
   };
 
   const exportRequestsToCSV = () => {
@@ -173,64 +195,134 @@ function RequestsPageContent() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Client Requests</h1>
-        <p className="text-muted-foreground">
-          Submit new requests or view existing ones
-        </p>
+      {/* Professional Header Section */}
+      <div className="text-center mb-12">
+        <div className="bg-gradient-to-r from-green-600 to-green-800 text-white py-12 px-8 rounded-2xl mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">🌳 Request Your Free Quote</h1>
+          <p className="text-xl md:text-2xl mb-6 text-green-100">
+            Professional Tree Services by Greentree Co.
+          </p>
+          <div className="max-w-4xl mx-auto text-lg md:text-xl text-green-50 space-y-4">
+            <p>
+              Transform your landscape with premium trees from Austin's trusted nursery. 
+              We provide expert consultation, quality trees, and professional installation services.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                <div className="text-2xl mb-2">🌿</div>
+                <h3 className="font-semibold mb-2">Premium Quality</h3>
+                <p className="text-sm">Hand-selected trees from our 50+ variety inventory</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                <div className="text-2xl mb-2">🚚</div>
+                <h3 className="font-semibold mb-2">Professional Service</h3>
+                <p className="text-sm">Delivery, planting, and consultation services</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                <div className="text-2xl mb-2">💰</div>
+                <h3 className="font-semibold mb-2">Free Quotes</h3>
+                <p className="text-sm">No obligation estimates within 24 hours</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg mb-8">
+          <div className="flex items-center">
+            <div className="text-yellow-600 text-2xl mr-3">⚡</div>
+            <div>
+              <h3 className="text-lg font-semibold text-yellow-800">Ready to Get Started?</h3>
+              <p className="text-yellow-700">Fill out our quick form below and we'll contact you within 24 hours with your personalized quote!</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Social Sharing Section */}
+        <div className="bg-white border-2 border-green-200 rounded-xl p-6 mb-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-center md:text-left">
+              <h3 className="text-lg font-semibold text-green-800 mb-2">📢 Share with Friends & Family</h3>
+              <p className="text-green-600">Know someone who needs tree services? Share this page!</p>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => shareToFacebook()}
+                className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600"
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Share on Facebook
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => copyShareableLink()}
+                className="bg-green-600 text-white hover:bg-green-700 border-green-600"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copy Link
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <Tabs defaultValue="submit" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="submit">Submit Request</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+          <TabsTrigger value="submit" className="text-lg py-3">Get Free Quote</TabsTrigger>
           <TabsTrigger value="view">View Requests</TabsTrigger>
         </TabsList>
 
         {/* Submit Request Tab */}
         <TabsContent value="submit">
-          <Card ref={formRef}>
-            <CardHeader>
-              <CardTitle>Submit a New Request</CardTitle>
-              <CardDescription>
-                Fill out the form below to request trees or get a consultation
+          <Card ref={formRef} className="shadow-xl border-2 border-green-100">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 rounded-t-lg">
+              <CardTitle className="text-2xl text-green-800 text-center">🌳 Get Your Free Tree Quote</CardTitle>
+              <CardDescription className="text-center text-lg text-green-700">
+                Tell us about your project and we'll provide a personalized quote within 24 hours!
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Contact Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Name *</Label>
+                    <Label htmlFor="name" className="text-lg font-medium">Name *</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       placeholder="Your full name"
+                      className="text-lg py-3 px-4"
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="your@email.com"
-                      required
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-lg font-medium">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        placeholder="your@email.com"
+                        className="text-lg py-3 px-4"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-lg font-medium">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        placeholder="(555) 123-4567"
+                        className="text-lg py-3 px-4"
+                      />
+                    </div>
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="(555) 123-4567"
-                  />
                 </div>
 
                 {/* Tree Selection */}
@@ -266,21 +358,25 @@ function RequestsPageContent() {
 
                 {/* Message */}
                 <div className="space-y-2">
-                  <Label htmlFor="message">Message *</Label>
+                  <Label htmlFor="message" className="text-lg font-medium">Tell Us About Your Project *</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
                     onChange={(e) => handleInputChange('message', e.target.value)}
-                    placeholder="Tell us about your project, timeline, and any specific requirements..."
-                    rows={5}
+                    placeholder="Describe your landscaping project: How many trees do you need? What's your timeline? Any specific requirements or questions?"
+                    rows={6}
+                    className="text-lg py-3 px-4"
                     required
                   />
                 </div>
 
-                <Button type="submit" className="w-full md:w-auto">
-                  <Send className="h-4 w-4 mr-2" />
-                  Submit Request
-                </Button>
+                <div className="text-center">
+                  <Button type="submit" size="lg" className="w-full md:w-auto bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 text-lg font-semibold rounded-xl transform transition-all duration-200 hover:scale-105 shadow-lg">
+                    <Send className="h-5 w-5 mr-3" />
+                    Get My FREE Quote Now! 🌟
+                  </Button>
+                  <p className="text-sm text-muted-foreground mt-3">✅ No obligation • ✅ Quick response • ✅ Expert advice</p>
+                </div>
               </form>
             </CardContent>
           </Card>
