@@ -393,11 +393,12 @@ export default function AdminDashboard() {
 
       {/* Tabs for different dashboard views */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 h-auto sm:h-10">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-5 h-auto sm:h-10">
           <TabsTrigger value="overview" className="text-sm">Overview</TabsTrigger>
           <TabsTrigger value="analytics" className="text-sm">Analytics</TabsTrigger>
           <TabsTrigger value="insights" className="text-sm">Customer Insights</TabsTrigger>
           <TabsTrigger value="planning" className="text-sm">Planning</TabsTrigger>
+          <TabsTrigger value="wishlist" className="text-sm">Wishlist Mgmt</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -986,6 +987,180 @@ export default function AdminDashboard() {
                       <span className="text-orange-600">→</span>
                       Develop corporate client relationships
                     </li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Wishlist Management Tab */}
+        <TabsContent value="wishlist" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                Wishlist Management
+              </CardTitle>
+              <CardDescription>
+                Manage customer wishlists and fulfill orders from available inventory
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Note:</strong> This demo system uses localStorage-based wishlists. In a production environment, 
+                  this would connect to a customer database with real wishlist data.
+                </AlertDescription>
+              </Alert>
+              
+              <div className="mt-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Customer Wishlists</h3>
+                  <Badge variant="secondary">Demo Mode</Badge>
+                </div>
+                
+                {/* Sample Wishlist Data */}
+                <div className="space-y-4">
+                  <Card className="border-l-4 border-l-blue-500">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-base">Sarah Johnson - Austin, TX</CardTitle>
+                          <CardDescription className="text-sm">Requested: June 20, 2024</CardDescription>
+                        </div>
+                        <Badge variant="outline">3 items</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <div className="font-medium">Anacua (Ehretia anacua)</div>
+                            <div className="text-sm text-muted-foreground">1 Gallon - $14</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="default" className="bg-green-100 text-green-800">4 in stock</Badge>
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                              Fulfill
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <div className="font-medium">Basswood, Carolina</div>
+                            <div className="text-sm text-muted-foreground">3-5 Gallon - $50</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="default" className="bg-green-100 text-green-800">4 in stock</Badge>
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                              Fulfill
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <div className="font-medium">Cherry, Escarpment (R)</div>
+                            <div className="text-sm text-muted-foreground">1 Gallon - $20</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="destructive">Out of stock</Badge>
+                            <Button size="sm" variant="outline" disabled>
+                              Fulfill
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-muted-foreground">
+                            Total Value: $84 • Available: 2/3 items
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">
+                              Contact Customer
+                            </Button>
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                              Fulfill Available Items
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-l-4 border-l-green-500">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-base">Michael Chen - Cedar Park, TX</CardTitle>
+                          <CardDescription className="text-sm">Requested: June 18, 2024</CardDescription>
+                        </div>
+                        <Badge variant="outline">2 items</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <div className="font-medium">Cypress, Bald</div>
+                            <div className="text-sm text-muted-foreground">1 Gallon - $160</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="default" className="bg-green-100 text-green-800">6 in stock</Badge>
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                              Fulfill
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <div className="font-medium">Cottonwood, Eastern</div>
+                            <div className="text-sm text-muted-foreground">1 Gallon - $14</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="default" className="bg-green-100 text-green-800">1 in stock</Badge>
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                              Fulfill
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-muted-foreground">
+                            Total Value: $174 • Available: 2/2 items
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">
+                              Contact Customer
+                            </Button>
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                              Fulfill All Items
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 mb-2">Fulfillment Actions</h4>
+                  <p className="text-sm text-blue-800 mb-3">
+                    When you fulfill a wishlist item, the system will automatically:
+                  </p>
+                  <ul className="text-sm text-blue-800 space-y-1 ml-4">
+                    <li>• Reduce inventory stock levels</li>
+                    <li>• Generate fulfillment notification</li>
+                    <li>• Update wishlist status to "fulfilled"</li>
+                    <li>• Send customer notification (email/SMS)</li>
                   </ul>
                 </div>
               </div>
