@@ -39,8 +39,8 @@ export default function RootLayout({
         <main>{children}</main>
         <footer className="bg-primary text-primary-foreground py-4 sm:py-6 mt-auto">
           <div className="container mx-auto px-4">
-            <div className="text-center space-y-2">
-              <h3 className="font-semibold text-base sm:text-lg">Professional Tree Services</h3>
+            <div className="text-center space-y-3">
+              <h3 className="font-semibold text-base sm:text-lg">Green Tree Co. - Professional Tree Services</h3>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
                   <span>📞</span>
@@ -53,6 +53,24 @@ export default function RootLayout({
                 <div className="flex items-center gap-2">
                   <span>📍</span>
                   <span>2841 N FM 1174, Bertram, TX 78605</span>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+                <div className="flex items-center gap-2">
+                  <span>🌐</span>
+                  <a href="https://gtctreecare.com" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    gtctreecare.com
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>🌳</span>
+                  <span>Texas Tree Diversity</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>📘</span>
+                  <a href="https://facebook.com/gtcnursery" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    facebook.com/gtcnursery
+                  </a>
                 </div>
               </div>
             </div>
