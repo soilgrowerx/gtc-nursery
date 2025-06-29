@@ -44,15 +44,15 @@ export default function RootLayout({
               <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
                   <span>📞</span>
-                  <span>(555) 123-TREE</span>
+                  <span>(512) 525-5677</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>✉️</span>
-                  <span>info@greentreeco.com</span>
+                  <span>jamesgreentx@gmail.com</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>📍</span>
-                  <span>Your City, State</span>
+                  <span>2841 N FM 1174, Bertram, TX 78605</span>
                 </div>
               </div>
             </div>
