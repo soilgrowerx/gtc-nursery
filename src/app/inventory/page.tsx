@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart, AlertTriangle, DollarSign, Package, X, CheckSquare, Square, ShoppingCart, RefreshCw, Users, TreePine, Droplets, Sun, Info, Quote, Leaf, Star, MapPin } from 'lucide-react';
+import { Search, Filter, SortAsc, SortDesc, ExternalLink, Download, ChevronDown, ChevronUp, FileText, Printer, ChevronLeft, ChevronRight, Heart, AlertTriangle, DollarSign, Package, X, CheckSquare, Square, ShoppingCart, RefreshCw, Users, TreePine, Droplets, Sun, Info, Quote, Leaf, Star, MapPin, Grid3X3, List } from 'lucide-react';
 import { Tree, TreeFilter } from '@/types/tree';
 import { useWishlist } from '@/hooks/use-wishlist';
 import treesData from '../../../data/trees.json';
@@ -54,6 +54,7 @@ export default function InventoryPage() {
   const [reorderItems, setReorderItems] = useState<Set<string>>(new Set());
   const [selectedTree, setSelectedTree] = useState<Tree | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const itemsPerPage = 12;
 
   // Simulate loading when filters change
@@ -609,6 +610,29 @@ export default function InventoryPage() {
               {filteredAndSortedTrees.length} result{filteredAndSortedTrees.length !== 1 ? 's' : ''}
               {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
             </Badge>
+            
+            {/* View Toggle */}
+            <div className="flex items-center border rounded-md">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className="h-8 px-3 rounded-r-none"
+              >
+                <Grid3X3 className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Grid</span>
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="h-8 px-3 rounded-l-none"
+              >
+                <List className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">List</span>
+              </Button>
+            </div>
+            
             {(filters.searchTerm || filters.category || filters.sizeFilter || 
               filters.priceRange.min > priceRange.min || filters.priceRange.max < priceRange.max || 
               filters.availabilityFilter !== 'all' || activeQuickFilter) && (
@@ -772,14 +796,15 @@ export default function InventoryPage() {
         </div>
       )}
 
-      {/* Tree Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {isLoading ? (
-          Array.from({ length: itemsPerPage }).map((_, i) => (
-            <TreeCardSkeleton key={i} />
-          ))
-        ) : (
-          paginatedTrees.map((tree) => (
+      {/* Tree Display */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {isLoading ? (
+            Array.from({ length: itemsPerPage }).map((_, i) => (
+              <TreeCardSkeleton key={i} />
+            ))
+          ) : (
+            paginatedTrees.map((tree) => (
           <div key={tree.id} className="relative">
             <Card className={`hover:shadow-lg transition-all cursor-pointer touch-manipulation ${
               selectedItems.has(tree.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''
@@ -903,7 +928,95 @@ export default function InventoryPage() {
           </div>
           ))
         )}
-      </div>
+        </div>
+      ) : (
+        /* List View */
+        <div className="space-y-3">
+          {isLoading ? (
+            Array.from({ length: itemsPerPage }).map((_, i) => (
+              <div key={i} className="animate-pulse bg-gray-100 rounded-lg p-4 h-16"></div>
+            ))
+          ) : (
+            paginatedTrees.map((tree) => (
+              <Card key={tree.id} className={`hover:shadow-md transition-all cursor-pointer ${
+                selectedItems.has(tree.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+              } ${reorderItems.has(tree.id) ? 'border-orange-300 bg-orange-50' : ''}`}>
+                <CardContent className="p-4" onClick={() => openTreeModal(tree)}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 flex-1">
+                      {/* Selection Checkbox */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 hover:bg-blue-100 flex-shrink-0"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleSelectItem(tree.id);
+                        }}
+                      >
+                        {selectedItems.has(tree.id) ? 
+                          <CheckSquare className="h-4 w-4 text-blue-600" /> : 
+                          <Square className="h-4 w-4 text-gray-400 hover:text-blue-500" />
+                        }
+                      </Button>
+                      
+                      {/* Tree Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-semibold text-sm truncate">{tree.commonName}</h3>
+                          <Badge variant="outline" className="text-xs flex-shrink-0">{tree.category}</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{tree.botanicalName}</p>
+                        <p className="text-xs text-muted-foreground">SKU: {tree.sku} • Size: {tree.size}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Right side - Price, Stock, Actions */}
+                    <div className="flex items-center space-x-3 flex-shrink-0">
+                      <div className="text-right">
+                        <div className="font-semibold text-lg text-green-600">${tree.price}</div>
+                        <Badge variant={tree.quantityInStock > 0 ? 'default' : 'destructive'} className="text-xs">
+                          {tree.quantityInStock > 0 ? `${tree.quantityInStock} in stock` : 'Out of stock'}
+                        </Badge>
+                      </div>
+                      
+                      {/* Actions */}
+                      <div className="flex items-center space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-1 h-8 w-8"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleWishlist(tree.id);
+                          }}
+                        >
+                          <Heart 
+                            className={`h-4 w-4 ${isInWishlist(tree.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
+                          />
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="h-8 px-3"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openTreeModal(tree);
+                          }}
+                        >
+                          <span className="hidden sm:inline">View Details</span>
+                          <span className="sm:hidden">View</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && !isLoading && (
